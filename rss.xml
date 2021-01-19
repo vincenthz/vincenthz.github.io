@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+      <title>Typed Chronicles</title>
+        <link>https://vincenthz.github.io</link>
+        <description>Vincent Hanquez&#x27;s adventures with types, programming languages, crypto and security</description>
+        <generator>Zola</generator>
+        <language>en</language>
+        <atom:link href="https://vincenthz.github.io/rss.xml" rel="self" type="application/rss+xml"/>
+        <lastBuildDate>Sun, 17 Jan 2021 00:00:00 +0000</lastBuildDate>
+        <item>
+            <title>Cryptoxide perf (SHA2 &#x2F; Blake2)</title>
+            <pubDate>Sun, 17 Jan 2021 00:00:00 +0000</pubDate>
+            <link>https://vincenthz.github.io/cryptoxide-performance/</link>
+            <guid>https://vincenthz.github.io/cryptoxide-performance/</guid>
+            <description>&lt;p&gt;Related to some engine rewrite and SSE, AVX, AVX2 cpu optimisation I did last
+year on &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;typed-io&#x2F;cryptoxide&#x2F;&quot;&gt;cryptoxide&lt;&#x2F;a&gt; :&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;typed-io&#x2F;cryptoxide&#x2F;pull&#x2F;8&quot;&gt;SHA2 optimisation&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;typed-io&#x2F;cryptoxide&#x2F;pull&#x2F;9&quot;&gt;Blake2 optimisation&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</description>
+        </item>
+        <item>
+            <title>Ouroboros Verifiable Random Function</title>
+            <pubDate>Sun, 26 Jan 2020 00:00:00 +0000</pubDate>
+            <link>https://vincenthz.github.io/ouroboros-vrf-explanation/</link>
+            <guid>https://vincenthz.github.io/ouroboros-vrf-explanation/</guid>
+            <description>&lt;p&gt;Verifiable Random Function (VRF) are one of the key cryptographic primitive for
+&lt;a href=&quot;https:&#x2F;&#x2F;eprint.iacr.org&#x2F;2017&#x2F;573.pdf&quot;&gt;Ouroboros Praos&lt;&#x2F;a&gt;, that allows to participate
+in the block creation lottery. Let&#x27;s dig in the detail of the tech&lt;&#x2F;p&gt;
+</description>
+        </item>
+        <item>
+            <title>Compiling GHC with Stack for Stack</title>
+            <pubDate>Thu, 20 Jul 2017 00:00:00 +0000</pubDate>
+            <link>https://vincenthz.github.io/ghc-stack/</link>
+            <guid>https://vincenthz.github.io/ghc-stack/</guid>
+            <description>&lt;p&gt;While Stack is really good at magically summoning all the compilers you need,
+adding your own compiled compiler is not quite documented. For testing specific
+version that doesn&#x27;t have a release, or testing your own compiler modification,
+it&#x27;s useful to add your own compiler in a build tool that by default works
+in a multi compiler settings.&lt;&#x2F;p&gt;
+</description>
+        </item>
+        <item>
+            <title>Efficient CStruct</title>
+            <pubDate>Mon, 20 Mar 2017 00:00:00 +0000</pubDate>
+            <link>https://vincenthz.github.io/compilation-cstruct/</link>
+            <guid>https://vincenthz.github.io/compilation-cstruct/</guid>
+            <description>&lt;p&gt;Dealing with complex C-structure-like data in haskell often
+force the developer to have to deal with C files, and create
+a system that is usually a tradeoff between efficiency, modularity
+and safety.&lt;&#x2F;p&gt;
+&lt;p&gt;The &lt;code&gt;Foreign&lt;&#x2F;code&gt; class doesn&#x27;t quite cut it, external program needs C files,
+binary parsers (binary, cereal) are not efficient or modular.&lt;&#x2F;p&gt;
+&lt;p&gt;Let&#x27;s see if we can do better using the advanced haskell type system.&lt;&#x2F;p&gt;
+</description>
+        </item>
+        <item>
+            <title>Foundation</title>
+            <pubDate>Fri, 09 Sep 2016 00:00:00 +0000</pubDate>
+            <link>https://vincenthz.github.io/foundation/</link>
+            <guid>https://vincenthz.github.io/foundation/</guid>
+            <description>&lt;p&gt;A new hope. Foundation is a new library that tries to define a new modern Haskell framework.
+It is also trying to be more than a library: A common place for
+the community to improve things and define new things&lt;&#x2F;p&gt;
+</description>
+        </item>
+        <item>
+            <title>Combining Rust and Haskell</title>
+            <pubDate>Mon, 28 Sep 2015 00:00:00 +0000</pubDate>
+            <link>https://vincenthz.github.io/rust-with-haskell/</link>
+            <guid>https://vincenthz.github.io/rust-with-haskell/</guid>
+            <description>&lt;p&gt;Rust is a pretty interesting language, in the area of C++ but more modern &#x2F;
+better. The stated goal of rust are: &amp;quot;a systems programming language focused
+on three goals: safety, speed, and concurrency&amp;quot;. Combining Rust with Haskell
+could create some interesting use cases, and could replace use of C in some
+projects while providing a more high level and safer approach where Haskell
+cannot be used.&lt;&#x2F;p&gt;
+</description>
+        </item>
+        <item>
+            <title>Announcing: cryptonite</title>
+            <pubDate>Tue, 02 Jun 2015 00:00:00 +0000</pubDate>
+            <link>https://vincenthz.github.io/announcing-cryptonite/</link>
+            <guid>https://vincenthz.github.io/announcing-cryptonite/</guid>
+            <description>&lt;p&gt;For the last 5 years, I&#x27;ve worked intermittently on cryptographic related packages for Haskell.
+Lately, I&#x27;ve consolidated it all in one single package. Announcing &lt;a href=&quot;http:&#x2F;&#x2F;hackage.haskell.org&#x2F;package&#x2F;cryptonite&quot;&gt;cryptonite&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+</description>
+        </item>
+        <item>
+            <title>Downloading safely</title>
+            <pubDate>Sat, 30 May 2015 00:00:00 +0000</pubDate>
+            <link>https://vincenthz.github.io/downloading-safely/</link>
+            <guid>https://vincenthz.github.io/downloading-safely/</guid>
+            <description>&lt;p&gt;All too often, things are downloaded without safety from hosts and mirrors.
+Here&#x27;s a practical guide to know where you stand and improve the situation.&lt;&#x2F;p&gt;
+</description>
+        </item>
+        <item>
+            <title>Simple time with Hourglass</title>
+            <pubDate>Mon, 05 May 2014 00:00:00 +0000</pubDate>
+            <link>https://vincenthz.github.io/hourglass-simpler-time/</link>
+            <guid>https://vincenthz.github.io/hourglass-simpler-time/</guid>
+            <description>&lt;p&gt;Each time, I&#x27;ve used the &lt;a href=&quot;http:&#x2F;&#x2F;hackage.haskell.org&#x2F;package&#x2F;time&quot;&gt;time&lt;&#x2F;a&gt; API in
+Haskell, I&#x27;m left with the distinct feeling that the API is not what I want it
+to be. After one time too many searching the API to do some basic thing, I&#x27;ve
+decided to look at the design space and just try implementing what I want to
+use.&lt;&#x2F;p&gt;
+</description>
+        </item>
+        <item>
+            <title>Listing licenses with cabal-db</title>
+            <pubDate>Sat, 29 Mar 2014 00:00:00 +0000</pubDate>
+            <link>https://vincenthz.github.io/cabal-db-license/</link>
+            <guid>https://vincenthz.github.io/cabal-db-license/</guid>
+            <description>&lt;p&gt;Following discussions with fellow haskellers, regarding the need to be careful
+with adding packages that could depends on GPL or proprietary licenses, it
+turns out it&#x27;s not easy to get your dependencies&#x27;s licenses listed.&lt;&#x2F;p&gt;
+</description>
+        </item>
+        <item>
+            <title>unix memory</title>
+            <pubDate>Tue, 25 Feb 2014 00:00:00 +0000</pubDate>
+            <link>https://vincenthz.github.io/unix-memory/</link>
+            <guid>https://vincenthz.github.io/unix-memory/</guid>
+            <description>&lt;p&gt;On unix system, we get access to syscalls that maps files or devices into
+memory. The main syscall is mmap, but there&#x27;s also some others syscalls in the
+same family to handle mapped memories like mlock, munlock, mprotect, madvise,
+msync.&lt;&#x2F;p&gt;
+</description>
+        </item>
+        <item>
+            <title>announcement: tls-1.2 is out</title>
+            <pubDate>Fri, 14 Feb 2014 00:00:00 +0000</pubDate>
+            <link>https://vincenthz.github.io/announce-tls12/</link>
+            <guid>https://vincenthz.github.io/announce-tls12/</guid>
+            <description>&lt;p&gt;One year ago, I&#x27;ve started some big changes on the &lt;a href=&quot;http:&#x2F;&#x2F;hackage.haskell.org&#x2F;package&#x2F;tls&quot;&gt;tls&lt;&#x2F;a&gt; package.
+I&#x27;ve finally manage to wrap it up in something that people can use straight out of hackage.&lt;&#x2F;p&gt;
+</description>
+        </item>
+        <item>
+            <title>haskell crypto platform</title>
+            <pubDate>Fri, 25 Oct 2013 00:00:00 +0000</pubDate>
+            <link>https://vincenthz.github.io/haskell-crypto-platform/</link>
+            <guid>https://vincenthz.github.io/haskell-crypto-platform/</guid>
+            <description>&lt;p&gt;One of my side projects that has been running for couple of years now,
+was to get Cryptography up to scratch in haskell. Back when
+I started &lt;a href=&quot;http:&#x2F;&#x2F;hackage.haskell.org&#x2F;package&#x2F;tls&quot;&gt;TLS&lt;&#x2F;a&gt;, there were many
+various cryptography related projects and libraries. Many were not easy to use,
+none were consistent, many had performance problems.&lt;&#x2F;p&gt;
+</description>
+        </item>
+        <item>
+            <title>ghc core with style</title>
+            <pubDate>Mon, 22 Apr 2013 00:00:00 +0000</pubDate>
+            <link>https://vincenthz.github.io/ghc-core-html/</link>
+            <guid>https://vincenthz.github.io/ghc-core-html/</guid>
+            <description>&lt;p&gt;After reading one too many time ghc core&#x27;s output,
+i&#x27;ve been itching to have a more interactive output.&lt;&#x2F;p&gt;
+</description>
+        </item>
+        <item>
+            <title>cabal-db : simple tool for cabal database queries</title>
+            <pubDate>Wed, 13 Mar 2013 00:00:00 +0000</pubDate>
+            <link>https://vincenthz.github.io/cabal-db/</link>
+            <guid>https://vincenthz.github.io/cabal-db/</guid>
+            <description>&lt;p&gt;Following previous experiment with Cabal library and querying the
+state of the hackage world &lt;a href=&quot;http:&#x2F;&#x2F;tab.snarc.org&#x2F;posts&#x2F;haskell&#x2F;2013-03-03-playing-with-cabal-lib.html&quot;&gt;here&lt;&#x2F;a&gt;,
+I&#x27;ve extended and wrapped the tool into a cabal package.&lt;&#x2F;p&gt;
+</description>
+        </item>
+    </channel>
+</rss>

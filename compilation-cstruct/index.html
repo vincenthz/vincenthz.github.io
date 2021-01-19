@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+    <!-- Enable responsiveness on mobile devices-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+    <title>Typed Chronicles</title>
+
+    <!-- CSS -->
+    <!-- <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/favicon.png" /> -->
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <!-- <link rel="stylesheet" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;print.css" media="print"> -->
+    <!-- <link rel="stylesheet" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;normalize.css"> -->
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;typed.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+    
+
+    
+
+    
+
+    
+
+    <script>function toggle_darkmode() { document.querySelector('body').classList.toggle('dark') }
+    </script>
+
+    
+    
+</head>
+
+<body>
+    <div id="page-outer">
+
+        <div id="page">
+            
+<header>
+  <h1>Typed Chronicles</h1>
+<p class="lead">Vincent Hanquez's adventures</p>
+<!-- <a href="https:&#x2F;&#x2F;vincenthz.github.io">Typed Chronicles</a> -->
+<nav id="nav-site">
+    <ul>
+        <li><a class="icon" href="https:&#x2F;&#x2F;vincenthz.github.io"><img src="/icons/home.svg"></a> </li>
+        <li><a class="icon" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;rss.xml"><img src="/icons/rss.svg"></a>
+        </li>
+        <li><a class="icon" href="https://github.com/vincenthz" target="_blank"><img src="/icons/gh.svg"></a></li>
+        <li><a class="icon" href="https://twitter.com/vincenthz" target="_blank"><img src="/icons/tw.svg"></a></li>
+    </ul>
+</nav>
+
+</header>
+
+
+            <main>
+                
+<h1 class="page-title">Efficient CStruct</h1>
+<span class="post-date">Published on 2017-03-20</span>
+<p>Dealing with complex C-structure-like data in haskell often
+force the developer to have to deal with C files, and create
+a system that is usually a tradeoff between efficiency, modularity
+and safety.</p>
+<p>The <code>Foreign</code> class doesn't quite cut it, external program needs C files,
+binary parsers (binary, cereal) are not efficient or modular.</p>
+<p>Let's see if we can do better using the advanced haskell type system.</p>
+<span id="continue-reading"></span>
+<p>First let define a common like C structure that we will re-use to compare
+different methods:</p>
+<pre style="background-color:#2b303b;">
+<code class="language-C" data-lang="C"><span style="color:#b48ead;">struct </span><span style="color:#c0c5ce;">example {
+    uint64_t a;
+    uint32_t b;
+    </span><span style="color:#b48ead;">union </span><span style="color:#c0c5ce;">{
+        uint64_t addr64;
+        </span><span style="color:#b48ead;">struct </span><span style="color:#c0c5ce;">{
+            uint32_t hi;
+            uint32_t low;
+        } addr32;
+    } addr;
+    uint8_t data[</span><span style="color:#d08770;">16</span><span style="color:#c0c5ce;">];
+};
+</span></code></pre><h2 id="dealing-with-c-structure">Dealing with C structure</h2>
+<p>The offset of each field is defined as a displacement (in bytes) from the
+beginning of the structure to point at the beginning of the field memory
+representation. For example here we have:</p>
+<ul>
+<li><code>a</code> is at offset 0 (relative to the beginning of the structure)</li>
+<li><code>b</code> is at offset 8</li>
+<li><code>addr.addr64</code> is at offset 12</li>
+<li><code>addr.addr32.hi</code> is at offset 12</li>
+<li><code>addr.addr32.low</code> is at offset 16</li>
+<li><code>data</code> is at offset 20</li>
+</ul>
+<p>The size of primitives is simply the number of bits composing the type; so a
+<code>uint64_t</code>, composed of 64 bits is 8 bytes.  Union is a special construction
+where the different option in the union are overlayed on each other and the
+biggest element define its size.  The size of a struct is defined recursively
+as the sum of all its component.</p>
+<ul>
+<li>field pointed by <code>a</code> is size 8</li>
+<li>field pointed by <code>b</code> is of size 4</li>
+<li>field pointed by <code>addr</code> is size 8</li>
+<li>field pointed by <code>data</code> is size 16</li>
+<li>the whole structure is size 36</li>
+</ul>
+<h2 id="what-s-wrong-with-foreign">What's wrong with Foreign</h2>
+<p>Here's the usual Foreign definition for something equivalent:</p>
+<pre style="background-color:#2b303b;">
+<code class="language-haskell" data-lang="haskell"><span style="color:#b48ead;">data </span><span style="color:#d08770;">Example </span><span style="color:#c0c5ce;">= </span><span style="color:#d08770;">Example
+</span><span style="color:#c0c5ce;">    { a    :: {-# </span><span style="color:#b48ead;">UNPACK</span><span style="color:#c0c5ce;"> #-} !</span><span style="color:#d08770;">Word64
+    </span><span style="color:#c0c5ce;">, b    :: {-# </span><span style="color:#b48ead;">UNPACK</span><span style="color:#c0c5ce;"> #-} !</span><span style="color:#d08770;">Word32
+    </span><span style="color:#c0c5ce;">, u    :: {-# </span><span style="color:#b48ead;">UNPACK</span><span style="color:#c0c5ce;"> #-} !</span><span style="color:#d08770;">Word64
+    </span><span style="color:#c0c5ce;">, </span><span style="color:#b48ead;">data </span><span style="color:#c0c5ce;">::                !</span><span style="color:#d08770;">ByteString
+</span><span style="color:#c0c5ce;">    } 
+
+peekBs p ofs len = ...
+
+</span><span style="color:#b48ead;">instance Foreign Example
+</span><span style="color:#c0c5ce;">    sizeof _ = </span><span style="color:#d08770;">36
+</span><span style="color:#c0c5ce;">    alignment _ = </span><span style="color:#d08770;">8
+</span><span style="color:#c0c5ce;">    peek p = </span><span style="color:#d08770;">Example </span><span style="color:#c0c5ce;">&lt;$&gt; peek (castPtr p)
+                     &lt;*&gt; peek (castPtr (p </span><span style="color:#8fa1b3;">`</span><span style="color:#c0c5ce;">plusPtr</span><span style="color:#8fa1b3;">` </span><span style="color:#d08770;">8</span><span style="color:#c0c5ce;">))
+                     &lt;*&gt; peek (castPtr (p </span><span style="color:#8fa1b3;">`</span><span style="color:#c0c5ce;">plusPtr</span><span style="color:#8fa1b3;">` </span><span style="color:#d08770;">12</span><span style="color:#c0c5ce;">))
+                     &lt;*&gt; peekBs p </span><span style="color:#d08770;">20 16
+</span><span style="color:#c0c5ce;">    poke p _ = ...
+</span></code></pre>
+<p>Given a (valid) Ptr, we can now get element in this by creating a new <code>Example</code>
+type by calling <code>peek</code>. This will materalize a new haskell data structure in
+the haskell GC-managed memory which have a copy of all the fields from the Ptr.</p>
+<p>In some cases, copying all this values on the haskell heap is wasteful and not
+efficient.  A simple of this use case, would be to quickly iterate over a block
+of memory to check for a few fields values repeatedly in structure.</p>
+<p>The <code>Foreign</code> type classes and co is only about moving data between the foreign
+boundary, it's not really about efficiency dealing with this foreign boundary.</p>
+<p>In short:</p>
+<ul>
+<li>Materialize values on the haskell side</li>
+<li>Not modular: whole type peeking/poking or nothing.</li>
+<li>Size and alignment defined on values, not type.</li>
+<li>No distinction between constant size types and variable size types.</li>
+<li>Often passing <code>undefined :: SomeType</code> to sizeof and alignment.</li>
+<li>Usually manually created, not typo-proof.</li>
+</ul>
+<h2 id="what-about-binary-parsers">What about binary parsers</h2>
+<p>There's many binary parser on the market: <a href="http://hackage.haskell.org/package/binary">binary</a>
+, <a href="http://hackage.haskell.org/package/cereal">cereal</a>, <a href="http://hackage.haskell.org/package/packer">packer</a>,
+<a href="http://hackage.haskell.org/package/store">store</a>.</p>
+<p>Most of a binary parser job is taking a stream of bytes and efficiently turning
+those bytes into haskell value. One added job is dealing with chunking, since
+you may not have all the memory for parsing, you need to deal with values that
+are cut between memory boundaries and have to deal with resumption.</p>
+<p>Here's an example of a binary parser for example:</p>
+<pre style="background-color:#2b303b;">
+<code class="language-haskell" data-lang="haskell"><span style="color:#8fa1b3;">getExample </span><span style="color:#b48ead;">:: Get Example
+</span><span style="color:#c0c5ce;">getExample =
+    </span><span style="color:#d08770;">Example </span><span style="color:#c0c5ce;">&lt;$&gt; getWord64Host
+            &lt;*&gt; getWord32Host
+            &lt;*&gt; getWord64Host
+            &lt;*&gt; getByteString </span><span style="color:#d08770;">16
+</span></code></pre>
+<p>However, intuitively this has the exact same problem as <code>Foreign</code>, you can't
+selectively and modularly deal with the data, and this create also
+full copy of the data on the haskell side. This is clearly warranted when
+dealing with memory that you want processed in chunks, since you
+can't hold on to the data stream to refer to it later.</p>
+<h2 id="defining-a-c-structure-in-haskell">Defining a C structure in haskell</h2>
+<p>Dealing with memory directly is error prone and it would be nice to able
+to simulate C structures overlay on memory without having to deal with
+size, offset and composition manually and to remain as efficient as possible.</p>
+<p>First we're gonna need a recent GHC (at least 8.0) and the following extensions:</p>
+<pre style="background-color:#2b303b;">
+<code class="language-haskell" data-lang="haskell"><span style="color:#c0c5ce;">{-# </span><span style="color:#b48ead;">LANGUAGE</span><span style="color:#c0c5ce;"> DataKinds #-}
+{-# </span><span style="color:#b48ead;">LANGUAGE</span><span style="color:#c0c5ce;"> TypeOperators #-}
+{-# </span><span style="color:#b48ead;">LANGUAGE</span><span style="color:#c0c5ce;"> UndecidableInstances #-}
+{-# </span><span style="color:#b48ead;">LANGUAGE</span><span style="color:#c0c5ce;"> ScopedTypeVariables #-}
+{-# </span><span style="color:#b48ead;">LANGUAGE</span><span style="color:#c0c5ce;"> FlexibleContexts #-}
+{-# </span><span style="color:#b48ead;">LANGUAGE</span><span style="color:#c0c5ce;"> AllowAmbiguousTypes #-}
+</span></code></pre>
+<p>Then the following imports:</p>
+<pre style="background-color:#2b303b;">
+<code class="language-haskell" data-lang="haskell"><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">GHC.TypeLits
+</span><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">Data.Type.Bool
+</span><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">Data.Proxy
+</span><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">Data.Int
+</span><span style="color:#b48ead;">import </span><span style="color:#c0c5ce;">Data.Word
+</span></code></pre>
+<p>We define a simple ADT of all the possible elements that you can find, and their compositions:</p>
+<pre style="background-color:#2b303b;">
+<code class="language-haskell" data-lang="haskell"><span style="color:#b48ead;">data </span><span style="color:#d08770;">Element </span><span style="color:#c0c5ce;">=
+      </span><span style="color:#d08770;">FInt8
+    </span><span style="color:#c0c5ce;">| </span><span style="color:#d08770;">FWord8
+    </span><span style="color:#c0c5ce;">| </span><span style="color:#d08770;">FInt16
+    </span><span style="color:#c0c5ce;">| </span><span style="color:#d08770;">FWord16
+    </span><span style="color:#c0c5ce;">| </span><span style="color:#d08770;">FInt32
+    </span><span style="color:#c0c5ce;">| </span><span style="color:#d08770;">FWord32
+    </span><span style="color:#c0c5ce;">| </span><span style="color:#d08770;">FInt64
+    </span><span style="color:#c0c5ce;">| </span><span style="color:#d08770;">FWord64
+    </span><span style="color:#c0c5ce;">| </span><span style="color:#d08770;">FFloat
+    </span><span style="color:#c0c5ce;">| </span><span style="color:#d08770;">FDouble
+    </span><span style="color:#c0c5ce;">| </span><span style="color:#d08770;">FLong
+    </span><span style="color:#c0c5ce;">| </span><span style="color:#d08770;">FArray Nat Element          </span><span style="color:#65737e;">-- size of the element and type of element
+    </span><span style="color:#c0c5ce;">| </span><span style="color:#d08770;">FStruct</span><span style="color:#c0c5ce;"> [(</span><span style="color:#d08770;">Symbol</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">Element</span><span style="color:#c0c5ce;">)] </span><span style="color:#65737e;">-- list of of field * type
+    </span><span style="color:#c0c5ce;">| </span><span style="color:#d08770;">FUnion</span><span style="color:#c0c5ce;"> [(</span><span style="color:#d08770;">Symbol</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">Element</span><span style="color:#c0c5ce;">)]  </span><span style="color:#65737e;">-- list of field * type
+</span></code></pre>
+<p>now <code>struct example</code> can be represented with:</p>
+<pre style="background-color:#2b303b;">
+<code class="language-haskell" data-lang="haskell"><span style="color:#b48ead;">type </span><span style="color:#d08770;">Example </span><span style="color:#c0c5ce;">= &#39;</span><span style="color:#d08770;">FStruct
+</span><span style="color:#c0c5ce;">    &#39;[ &#39;( &quot;</span><span style="color:#a3be8c;">a</span><span style="color:#c0c5ce;">&quot;   , &#39;</span><span style="color:#d08770;">FWord64</span><span style="color:#c0c5ce;">)
+     , &#39;( &quot;</span><span style="color:#a3be8c;">b</span><span style="color:#c0c5ce;">&quot;   , &#39;</span><span style="color:#d08770;">FWord32</span><span style="color:#c0c5ce;">)
+     , &#39;( &quot;</span><span style="color:#a3be8c;">addr</span><span style="color:#c0c5ce;">&quot;, &#39;</span><span style="color:#d08770;">FUnion</span><span style="color:#c0c5ce;"> &#39;[ &#39;( &quot;</span><span style="color:#a3be8c;">addr64</span><span style="color:#c0c5ce;">&quot;, &#39;</span><span style="color:#d08770;">FWord64</span><span style="color:#c0c5ce;">)
+                           , &#39;( &quot;</span><span style="color:#a3be8c;">addr32</span><span style="color:#c0c5ce;">&quot;, &#39;</span><span style="color:#d08770;">FStruct</span><span style="color:#c0c5ce;"> &#39;[ &#39;( &quot;</span><span style="color:#a3be8c;">hi</span><span style="color:#c0c5ce;">&quot;, &#39;</span><span style="color:#d08770;">FWord32</span><span style="color:#c0c5ce;">)
+                                                    , &#39;( &quot;</span><span style="color:#a3be8c;">low</span><span style="color:#c0c5ce;">&quot;, &#39;</span><span style="color:#d08770;">FWord32</span><span style="color:#c0c5ce;">) ])
+                           ])
+     , &#39;( &quot;</span><span style="color:#a3be8c;">data</span><span style="color:#c0c5ce;">&quot;, &#39;</span><span style="color:#d08770;">FArray 16</span><span style="color:#c0c5ce;"> &#39;</span><span style="color:#d08770;">FWord8</span><span style="color:#c0c5ce;"> )
+     ]
+</span></code></pre><h2 id="calculating-sizes">Calculating sizes</h2>
+<p>Size is one of the key thing we need to be able to do on element.</p>
+<p>Using a type family we can define the Size type which take an <code>Element</code> and returns a <code>Nat</code>
+representing the size of the element. </p>
+<pre style="background-color:#2b303b;">
+<code class="language-haskell" data-lang="haskell"><span style="color:#b48ead;">type</span><span style="color:#c0c5ce;"> family </span><span style="color:#d08770;">Size</span><span style="color:#c0c5ce;"> (t :: </span><span style="color:#d08770;">Element</span><span style="color:#c0c5ce;">) </span><span style="color:#b48ead;">where
+</span></code></pre>
+<p>This is very easy for our primitives types:</p>
+<pre style="background-color:#2b303b;">
+<code class="language-haskell" data-lang="haskell"><span style="color:#c0c5ce;">    </span><span style="color:#d08770;">Size</span><span style="color:#c0c5ce;"> (&#39;</span><span style="color:#d08770;">FInt8</span><span style="color:#c0c5ce;">)       = </span><span style="color:#d08770;">1
+    Size</span><span style="color:#c0c5ce;"> (&#39;</span><span style="color:#d08770;">FWord8</span><span style="color:#c0c5ce;">)      = </span><span style="color:#d08770;">1
+    Size</span><span style="color:#c0c5ce;"> (&#39;</span><span style="color:#d08770;">FInt16</span><span style="color:#c0c5ce;">)      = </span><span style="color:#d08770;">2
+    Size</span><span style="color:#c0c5ce;"> (&#39;</span><span style="color:#d08770;">FWord16</span><span style="color:#c0c5ce;">)     = </span><span style="color:#d08770;">2
+    Size</span><span style="color:#c0c5ce;"> (&#39;</span><span style="color:#d08770;">FInt32</span><span style="color:#c0c5ce;">)      = </span><span style="color:#d08770;">4
+    Size</span><span style="color:#c0c5ce;"> (&#39;</span><span style="color:#d08770;">FWord32</span><span style="color:#c0c5ce;">)     = </span><span style="color:#d08770;">4
+    Size</span><span style="color:#c0c5ce;"> (&#39;</span><span style="color:#d08770;">FInt64</span><span style="color:#c0c5ce;">)      = </span><span style="color:#d08770;">8
+    Size</span><span style="color:#c0c5ce;"> (&#39;</span><span style="color:#d08770;">FWord64</span><span style="color:#c0c5ce;">)     = </span><span style="color:#d08770;">8
+    Size</span><span style="color:#c0c5ce;"> (&#39;</span><span style="color:#d08770;">FFloat</span><span style="color:#c0c5ce;">)      = </span><span style="color:#d08770;">4
+    Size</span><span style="color:#c0c5ce;"> (&#39;</span><span style="color:#d08770;">FDouble</span><span style="color:#c0c5ce;">)     = </span><span style="color:#d08770;">8
+    Size</span><span style="color:#c0c5ce;"> (&#39;</span><span style="color:#d08770;">FLong</span><span style="color:#c0c5ce;">)       = </span><span style="color:#d08770;">8 </span><span style="color:#65737e;">-- hardcoded for example sake, but would be dynamic in real code
+</span></code></pre>
+<p>The array is simply the Size of the element multiplied by the number of elements:</p>
+<pre style="background-color:#2b303b;">
+<code class="language-haskell" data-lang="haskell"><span style="color:#c0c5ce;">    </span><span style="color:#d08770;">Size</span><span style="color:#c0c5ce;"> (&#39;</span><span style="color:#d08770;">FArray</span><span style="color:#c0c5ce;"> n el) = n * </span><span style="color:#d08770;">Size</span><span style="color:#c0c5ce;"> el
+</span></code></pre>
+<p>For the constructed elements, we need to define extra recursive type families.
+The structure is recursively defined to be the sum of its component Size, and
+the union is recursively defined as the biggest element in it,.</p>
+<pre style="background-color:#2b303b;">
+<code class="language-haskell" data-lang="haskell"><span style="color:#c0c5ce;">    </span><span style="color:#d08770;">Size</span><span style="color:#c0c5ce;"> (&#39;</span><span style="color:#d08770;">FStruct</span><span style="color:#c0c5ce;"> ls)  = </span><span style="color:#d08770;">StructSize</span><span style="color:#c0c5ce;"> ls
+    </span><span style="color:#d08770;">Size</span><span style="color:#c0c5ce;"> (&#39;</span><span style="color:#d08770;">FUnion</span><span style="color:#c0c5ce;"> ls)   = </span><span style="color:#d08770;">UnionSize</span><span style="color:#c0c5ce;"> ls
+
+</span><span style="color:#b48ead;">type</span><span style="color:#c0c5ce;"> family </span><span style="color:#d08770;">StructSize</span><span style="color:#c0c5ce;"> (ls :: [(</span><span style="color:#d08770;">Symbol</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">Element</span><span style="color:#c0c5ce;">)]) </span><span style="color:#b48ead;">where
+    </span><span style="color:#d08770;">StructSize</span><span style="color:#c0c5ce;"> &#39;</span><span style="color:#d08770;">[]            </span><span style="color:#c0c5ce;">= </span><span style="color:#d08770;">0
+    StructSize</span><span style="color:#c0c5ce;"> (&#39;(_,l) &#39;: ls) = </span><span style="color:#d08770;">Size</span><span style="color:#c0c5ce;"> l + </span><span style="color:#d08770;">StructSize</span><span style="color:#c0c5ce;"> ls
+
+</span><span style="color:#b48ead;">type</span><span style="color:#c0c5ce;"> family </span><span style="color:#d08770;">UnionSize</span><span style="color:#c0c5ce;"> (ls :: [(</span><span style="color:#d08770;">Symbol</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">Element</span><span style="color:#c0c5ce;">)]) </span><span style="color:#b48ead;">where
+    </span><span style="color:#d08770;">UnionSize</span><span style="color:#c0c5ce;"> &#39;</span><span style="color:#d08770;">[] </span><span style="color:#c0c5ce;">= </span><span style="color:#d08770;">0
+    UnionSize</span><span style="color:#c0c5ce;"> (&#39;(_,l) &#39;: ls) = </span><span style="color:#d08770;">If</span><span style="color:#c0c5ce;"> (</span><span style="color:#d08770;">Size</span><span style="color:#c0c5ce;"> l &lt;=? </span><span style="color:#d08770;">UnionSize</span><span style="color:#c0c5ce;"> ls) (</span><span style="color:#d08770;">UnionSize</span><span style="color:#c0c5ce;"> ls) (</span><span style="color:#d08770;">Size</span><span style="color:#c0c5ce;"> l)
+</span></code></pre>
+<p>Almost there, we only need a way to materialize the <code>Size</code> type, to have a
+value that we can use in our haskell code:</p>
+<pre style="background-color:#2b303b;">
+<code class="language-haskell" data-lang="haskell"><span style="color:#8fa1b3;">getSize </span><span style="color:#b48ead;">:: </span><span style="color:#bf616a;">forall el</span><span style="color:#c0c5ce;"> . </span><span style="color:#b48ead;">KnownNat</span><span style="color:#c0c5ce;"> (</span><span style="color:#b48ead;">Size </span><span style="color:#bf616a;">el</span><span style="color:#c0c5ce;">) </span><span style="color:#b48ead;">=&gt; Integer
+</span><span style="color:#c0c5ce;">getSize = natVal (</span><span style="color:#d08770;">Proxy </span><span style="color:#c0c5ce;">:: </span><span style="color:#d08770;">Proxy</span><span style="color:#c0c5ce;"> (</span><span style="color:#d08770;">Size</span><span style="color:#c0c5ce;"> el))
+</span></code></pre>
+<p>This looks a bit magic, so let's decompose this to make clear what happens;
+first <code>getSize</code> is a constant Integer, it doesn't have <em>any</em> parameters. Next
+the <code>el</code> type variable represent the type that we want to know the size of,
+and the contraint on <code>el</code> is that applying the Size type function, we
+have a <code>KnownNat</code> (Known Natural). In the body of the constant function we use
+natVal that takes a Proxy of a KnownNat to materialize the value.</p>
+<p>Given this signature, despite being a constant value, <code>getSize</code> need to determine
+the element on which it is applied. We can use the Type Application to effectively
+force the <code>el</code> element to be what we want to resolve to:</p>
+<pre style="background-color:#2b303b;">
+<code class="language-haskell" data-lang="haskell"><span style="color:#c0c5ce;">&gt; putStrLn $ show (getSize @</span><span style="color:#d08770;">Example</span><span style="color:#c0c5ce;">)
+</span><span style="color:#d08770;">36
+</span></code></pre><h2 id="zooming-with-accessors">Zooming with accessors</h2>
+<p>One first thing we need to have an accessor types to represent how we represent
+part of data structures.  For example in C, given the <code>struct example</code>, we want
+to be able to do:</p>
+<pre style="background-color:#2b303b;">
+<code class="language-C" data-lang="C"><span style="color:#c0c5ce;">    .</span><span style="color:#bf616a;">a
+    </span><span style="color:#c0c5ce;">.</span><span style="color:#bf616a;">addr</span><span style="color:#c0c5ce;">.</span><span style="color:#bf616a;">addr32</span><span style="color:#c0c5ce;">.</span><span style="color:#bf616a;">hi
+    </span><span style="color:#c0c5ce;">.</span><span style="color:#bf616a;">data</span><span style="color:#c0c5ce;">[</span><span style="color:#d08770;">3</span><span style="color:#c0c5ce;">]
+    .</span><span style="color:#bf616a;">data
+</span></code></pre>
+<p>in a case of a structure or a union, we use the field name to dereference the structure,
+but in case of an array, we use an integral index. This is really straighforward:</p>
+<pre style="background-color:#2b303b;">
+<code class="language-haskell" data-lang="haskell"><span style="color:#b48ead;">data </span><span style="color:#d08770;">Access </span><span style="color:#c0c5ce;">= </span><span style="color:#d08770;">Field Symbol </span><span style="color:#c0c5ce;">| </span><span style="color:#d08770;">Index Nat
+</span></code></pre>
+<p>A List of <code>Access</code> would represent the zooming inside the data structures. The previous
+example can be written in haskell with:</p>
+<pre style="background-color:#2b303b;">
+<code class="language-haskell" data-lang="haskell"><span style="color:#c0c5ce;">    &#39;[ &#39;</span><span style="color:#d08770;">Field </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">a</span><span style="color:#c0c5ce;">&quot; ]
+    &#39;[ &#39;</span><span style="color:#d08770;">Field </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">addr</span><span style="color:#c0c5ce;">&quot;, &#39;</span><span style="color:#d08770;">Field </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">addr32</span><span style="color:#c0c5ce;">&quot;, &#39;</span><span style="color:#d08770;">Field </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">hi</span><span style="color:#c0c5ce;">&quot; ]
+    &#39;[ &#39;</span><span style="color:#d08770;">Field </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">data</span><span style="color:#c0c5ce;">&quot;, &#39;</span><span style="color:#d08770;">Index 3</span><span style="color:#c0c5ce;"> ]
+    &#39;[ &#39;</span><span style="color:#d08770;">Field </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">data</span><span style="color:#c0c5ce;">&quot; ]
+</span></code></pre><h2 id="calculating-offset">Calculating Offset</h2>
+<p>Offset of fields is the next important step to have full capabilities in this system</p>
+<p>We define a type family for this that given an <code>Element</code> and <code>[Access]</code> would get back an offset in Nat.
+Note that due to the recurvise approach we add the offset <code>ofs</code> to start from.</p>
+<pre style="background-color:#2b303b;">
+<code class="language-haskell" data-lang="haskell"><span style="color:#b48ead;">type</span><span style="color:#c0c5ce;"> family </span><span style="color:#d08770;">Offset</span><span style="color:#c0c5ce;"> (ofs :: </span><span style="color:#d08770;">Nat</span><span style="color:#c0c5ce;">) (accessors :: [</span><span style="color:#d08770;">Access</span><span style="color:#c0c5ce;">]) (t :: </span><span style="color:#d08770;">Element</span><span style="color:#c0c5ce;">) </span><span style="color:#b48ead;">where
+</span></code></pre>
+<p>When the list of accessors is empty, we have reach the element, so we can just return the offset we have calculated</p>
+<pre style="background-color:#2b303b;">
+<code class="language-ruby" data-lang="ruby"><span style="color:#c0c5ce;">    </span><span style="color:#bf616a;">Offset</span><span style="color:#c0c5ce;"> ofs &#39;</span><span style="color:#a3be8c;">[]          t                = ofs
+</span></code></pre>
+<p>When we have a non empty list we call to each respective data structure with:</p>
+<ul>
+<li>the current offset</li>
+<li>the name of field searched or the index searched</li>
+<li>either the dictionary of symbol to element (represented by <code>'[(Symbol, Element)]</code>) or the array size and inner Element</li>
+</ul>
+<pre style="background-color:#2b303b;">
+<code class="language-haskell" data-lang="haskell"><span style="color:#c0c5ce;">    </span><span style="color:#d08770;">Offset</span><span style="color:#c0c5ce;"> ofs (&#39;</span><span style="color:#d08770;">Field</span><span style="color:#c0c5ce;"> f:fs) (&#39;</span><span style="color:#d08770;">FStruct</span><span style="color:#c0c5ce;"> dict) = </span><span style="color:#d08770;">StructOffset</span><span style="color:#c0c5ce;"> ofs f fs dict
+    </span><span style="color:#d08770;">Offset</span><span style="color:#c0c5ce;"> ofs (&#39;</span><span style="color:#d08770;">Field</span><span style="color:#c0c5ce;"> f:fs) (&#39;</span><span style="color:#d08770;">FUnion</span><span style="color:#c0c5ce;"> dict)  = </span><span style="color:#d08770;">UnionOffset</span><span style="color:#c0c5ce;"> ofs f fs dict
+    </span><span style="color:#d08770;">Offset</span><span style="color:#c0c5ce;"> ofs (&#39;</span><span style="color:#d08770;">Index</span><span style="color:#c0c5ce;"> i:fs) (&#39;</span><span style="color:#d08770;">FArray</span><span style="color:#c0c5ce;"> n t)   = </span><span style="color:#d08770;">ArrayOffset</span><span style="color:#c0c5ce;"> ofs i fs n t
+</span></code></pre>
+<p>Being a type enforced definition, it also mean that with this you can mix up
+trying to <code>Index</code> into a Structure, or trying to dereference a <code>Field</code> into an
+Array. the type system will (too) emphatically complain.</p>
+<p>Both the Structure and Union will recursely match in the dictionary of symbol to find
+a matching field. If we reach the empty list, we haven't found the right field
+and the developper is notified with a friendly TypeError, at compilation time, that the field is
+not present in the structure.</p>
+<p>Each time an field is skipped in the structure the size of the element being skipped, is added to the current offset.</p>
+<pre style="background-color:#2b303b;">
+<code class="language-haskell" data-lang="haskell"><span style="color:#b48ead;">type</span><span style="color:#c0c5ce;"> family </span><span style="color:#d08770;">StructOffset</span><span style="color:#c0c5ce;"> (ofs :: </span><span style="color:#d08770;">Nat</span><span style="color:#c0c5ce;">)
+                         (field :: </span><span style="color:#d08770;">Symbol</span><span style="color:#c0c5ce;">)
+                         (rs :: [</span><span style="color:#d08770;">Access</span><span style="color:#c0c5ce;">])
+                         (dict :: [(</span><span style="color:#d08770;">Symbol</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">Element</span><span style="color:#c0c5ce;">)]) </span><span style="color:#b48ead;">where
+    </span><span style="color:#d08770;">StructOffset</span><span style="color:#c0c5ce;"> ofs field rs &#39;</span><span style="color:#d08770;">[]                </span><span style="color:#c0c5ce;">=
+        </span><span style="color:#d08770;">TypeError</span><span style="color:#c0c5ce;"> (&#39;</span><span style="color:#d08770;">Text </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">offset: field </span><span style="color:#c0c5ce;">&quot;
+             &#39;:&lt;&gt;: &#39;</span><span style="color:#d08770;">ShowType</span><span style="color:#c0c5ce;"> field
+             &#39;:&lt;&gt;: &#39;</span><span style="color:#d08770;">Text </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;"> not found in structure</span><span style="color:#c0c5ce;">&quot;)
+    </span><span style="color:#d08770;">StructOffset</span><span style="color:#c0c5ce;"> ofs field rs (&#39;(field, t) &#39;: _) = </span><span style="color:#d08770;">Offset</span><span style="color:#c0c5ce;"> ofs rs t
+    </span><span style="color:#d08770;">StructOffset</span><span style="color:#c0c5ce;"> ofs field rs (&#39;(_    , v) &#39;: r) = </span><span style="color:#d08770;">StructOffset</span><span style="color:#c0c5ce;"> (ofs + </span><span style="color:#d08770;">Size</span><span style="color:#c0c5ce;"> v) field rs r
+
+</span><span style="color:#b48ead;">type</span><span style="color:#c0c5ce;"> family </span><span style="color:#d08770;">UnionOffset</span><span style="color:#c0c5ce;"> (ofs :: </span><span style="color:#d08770;">Nat</span><span style="color:#c0c5ce;">)
+                        (field :: </span><span style="color:#d08770;">Symbo</span><span style="color:#c0c5ce;">)
+                        (rs :: [</span><span style="color:#d08770;">Access</span><span style="color:#c0c5ce;">])
+                        (dict :: [(</span><span style="color:#d08770;">Symbol</span><span style="color:#c0c5ce;">, </span><span style="color:#d08770;">Element</span><span style="color:#c0c5ce;">)]) </span><span style="color:#b48ead;">where
+    </span><span style="color:#d08770;">UnionOffset</span><span style="color:#c0c5ce;"> ofs field rs &#39;</span><span style="color:#d08770;">[]                 </span><span style="color:#c0c5ce;">=
+        </span><span style="color:#d08770;">TypeError</span><span style="color:#c0c5ce;"> (&#39;</span><span style="color:#d08770;">Text </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">offset: field </span><span style="color:#c0c5ce;">&quot;
+             &#39;:&lt;&gt;: &#39;</span><span style="color:#d08770;">ShowType</span><span style="color:#c0c5ce;"> field
+             &#39;:&lt;&gt;: &#39;</span><span style="color:#d08770;">Text </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;"> not found in union</span><span style="color:#c0c5ce;">&quot;)
+    </span><span style="color:#d08770;">UnionOffset</span><span style="color:#c0c5ce;"> ofs field rs (&#39;(field, t) &#39;: _)  = </span><span style="color:#d08770;">Offset</span><span style="color:#c0c5ce;"> ofs rs t
+    </span><span style="color:#d08770;">UnionOffset</span><span style="color:#c0c5ce;"> ofs field rs (_            : r)  = </span><span style="color:#d08770;">UnionOffset</span><span style="color:#c0c5ce;"> ofs field rs r
+</span></code></pre>
+<p>In the case of the array, we can just make sure, at compilation time, that the user is accessing
+a field that is within bounds, otherwise we also notify the developer with a friendly TypeError.</p>
+<pre style="background-color:#2b303b;">
+<code class="language-haskell" data-lang="haskell"><span style="color:#b48ead;">type</span><span style="color:#c0c5ce;"> family </span><span style="color:#d08770;">ArrayOffset</span><span style="color:#c0c5ce;"> (ofs :: </span><span style="color:#d08770;">Nat</span><span style="color:#c0c5ce;">)
+                        (idx :: </span><span style="color:#d08770;">Nat</span><span style="color:#c0c5ce;">)
+                        (rs :: [</span><span style="color:#d08770;">Access</span><span style="color:#c0c5ce;">])
+                        (n :: </span><span style="color:#d08770;">Nat</span><span style="color:#c0c5ce;">)
+                        (t :: </span><span style="color:#d08770;">Element</span><span style="color:#c0c5ce;">) </span><span style="color:#b48ead;">where
+    </span><span style="color:#d08770;">ArrayOffset</span><span style="color:#c0c5ce;"> ofs idx rs n t =
+        </span><span style="color:#d08770;">If</span><span style="color:#c0c5ce;"> (n &lt;=? idx)
+            (</span><span style="color:#d08770;">TypeError</span><span style="color:#c0c5ce;"> (&#39;</span><span style="color:#d08770;">Text </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">out of bounds : index is </span><span style="color:#c0c5ce;">&quot;
+                  &#39;:&lt;&gt;: &#39;</span><span style="color:#d08770;">ShowType</span><span style="color:#c0c5ce;"> idx
+                  &#39;:&lt;&gt;: &#39;</span><span style="color:#d08770;">Text </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;"> but array of size </span><span style="color:#c0c5ce;">&quot;
+                  &#39;:&lt;&gt;: &#39;</span><span style="color:#d08770;">ShowType</span><span style="color:#c0c5ce;"> n))
+            (</span><span style="color:#d08770;">Offset</span><span style="color:#c0c5ce;"> (ofs + (idx * </span><span style="color:#d08770;">Size</span><span style="color:#c0c5ce;"> t)) rs t)
+</span></code></pre>
+<p>A simple example of how the machinery works:</p>
+<pre style="background-color:#2b303b;">
+<code class="language-haskell" data-lang="haskell"><span style="color:#c0c5ce;">&gt; </span><span style="color:#d08770;">Offset</span><span style="color:#c0c5ce;"> ofs &#39;[ &#39;</span><span style="color:#d08770;">Field </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">data</span><span style="color:#c0c5ce;">&quot;, &#39;</span><span style="color:#d08770;">Index 2</span><span style="color:#c0c5ce;"> ]) </span><span style="color:#d08770;">Example
+</span><span style="color:#c0c5ce;">&gt; </span><span style="color:#d08770;">StructOffset</span><span style="color:#c0c5ce;"> ofs &quot;</span><span style="color:#a3be8c;">data</span><span style="color:#c0c5ce;">&quot; [&#39;</span><span style="color:#d08770;">Index 2</span><span style="color:#c0c5ce;"> ]
+               &#39;[ &#39;(&quot;</span><span style="color:#a3be8c;">a</span><span style="color:#c0c5ce;">&quot;, ..), &#39;(&quot;</span><span style="color:#a3be8c;">b</span><span style="color:#c0c5ce;">&quot;, ..) , &#39;(&quot;</span><span style="color:#a3be8c;">addr</span><span style="color:#c0c5ce;">&quot;, ..), &#39;( &quot;</span><span style="color:#a3be8c;">data</span><span style="color:#c0c5ce;">&quot;, ..) ]
+&gt; </span><span style="color:#d08770;">StructOffset</span><span style="color:#c0c5ce;"> (ofs + </span><span style="color:#d08770;">Size</span><span style="color:#c0c5ce;"> &#39;</span><span style="color:#d08770;">Word64</span><span style="color:#c0c5ce;">) &quot;</span><span style="color:#a3be8c;">data</span><span style="color:#c0c5ce;">&quot; [&#39;</span><span style="color:#d08770;">Index 2</span><span style="color:#c0c5ce;">]
+               &#39;[ &#39;(&quot;</span><span style="color:#a3be8c;">b</span><span style="color:#c0c5ce;">&quot;, ..) , &#39;(&quot;</span><span style="color:#a3be8c;">addr</span><span style="color:#c0c5ce;">&quot;, ..), &#39;( &quot;</span><span style="color:#a3be8c;">data</span><span style="color:#c0c5ce;">&quot;, ..) ]
+&gt; </span><span style="color:#d08770;">StructOffset</span><span style="color:#c0c5ce;"> (ofs + </span><span style="color:#d08770;">8 </span><span style="color:#c0c5ce;">+ </span><span style="color:#d08770;">Size</span><span style="color:#c0c5ce;"> &#39;</span><span style="color:#d08770;">Word32</span><span style="color:#c0c5ce;">) &quot;</span><span style="color:#a3be8c;">data</span><span style="color:#c0c5ce;">&quot; [&#39;</span><span style="color:#d08770;">Index 2</span><span style="color:#c0c5ce;">]
+               &#39;[ &#39;(&quot;</span><span style="color:#a3be8c;">addr</span><span style="color:#c0c5ce;">&quot;, ..), &#39;( &quot;</span><span style="color:#a3be8c;">data</span><span style="color:#c0c5ce;">&quot;, ..) ]
+&gt; </span><span style="color:#d08770;">StructOffset</span><span style="color:#c0c5ce;"> (ofs + </span><span style="color:#d08770;">12 </span><span style="color:#c0c5ce;">+ </span><span style="color:#d08770;">Size</span><span style="color:#c0c5ce;"> (&#39;</span><span style="color:#d08770;">Union </span><span style="color:#c0c5ce;">..)) &quot;</span><span style="color:#a3be8c;">data</span><span style="color:#c0c5ce;">&quot; [&#39;</span><span style="color:#d08770;">Index 2</span><span style="color:#c0c5ce;"> ]
+               &#39;[ &#39;( &quot;</span><span style="color:#a3be8c;">data</span><span style="color:#c0c5ce;">&quot;, &#39;</span><span style="color:#d08770;">Farray 16</span><span style="color:#c0c5ce;"> &#39;</span><span style="color:#d08770;">FWord8</span><span style="color:#c0c5ce;">) ]
+&gt; </span><span style="color:#d08770;">Offset</span><span style="color:#c0c5ce;"> (ofs + </span><span style="color:#d08770;">20</span><span style="color:#c0c5ce;">) [&#39;</span><span style="color:#d08770;">Index 3</span><span style="color:#c0c5ce;">] (&#39;</span><span style="color:#d08770;">FArray 16</span><span style="color:#c0c5ce;"> &#39;</span><span style="color:#d08770;">FWord8</span><span style="color:#c0c5ce;">)
+&gt; </span><span style="color:#d08770;">Offset</span><span style="color:#c0c5ce;"> (ofs + </span><span style="color:#d08770;">20 </span><span style="color:#c0c5ce;">+ </span><span style="color:#d08770;">3</span><span style="color:#c0c5ce;"> * </span><span style="color:#d08770;">Size</span><span style="color:#c0c5ce;"> &#39;</span><span style="color:#d08770;">FWord8</span><span style="color:#c0c5ce;">) </span><span style="color:#d08770;">[]</span><span style="color:#c0c5ce;"> &#39;</span><span style="color:#d08770;">FWord8
+</span><span style="color:#c0c5ce;">&gt; ofs + </span><span style="color:#d08770;">23
+</span></code></pre>
+<p>Now we can just calculate Offset of accessors in structure, we just need something to use it.</p>
+<pre style="background-color:#2b303b;">
+<code class="language-haskell" data-lang="haskell"><span style="color:#8fa1b3;">getOffset </span><span style="color:#b48ead;">:: </span><span style="color:#bf616a;">forall el fields</span><span style="color:#c0c5ce;"> . (</span><span style="color:#b48ead;">KnownNat</span><span style="color:#c0c5ce;"> (</span><span style="color:#b48ead;">Offset</span><span style="color:#c0c5ce;"> 0 </span><span style="color:#bf616a;">fields el</span><span style="color:#c0c5ce;">)) </span><span style="color:#b48ead;">=&gt; Integer
+</span><span style="color:#c0c5ce;">getOffset = natVal (</span><span style="color:#d08770;">Proxy </span><span style="color:#c0c5ce;">:: </span><span style="color:#d08770;">Proxy</span><span style="color:#c0c5ce;"> (</span><span style="color:#d08770;">Offset 0</span><span style="color:#c0c5ce;"> fields el))
+</span></code></pre>
+<p>Again same magic as <code>getSize</code>, and we also define a constant by construction.
+We also start counting the offset at 0 since we want to calculate absolute
+displacement, but we could start at some other points depending on need, and
+prevent a runtime addition if we were to know the starting offset at compilation
+for example.</p>
+<pre style="background-color:#2b303b;">
+<code class="language-haskell" data-lang="haskell"><span style="color:#c0c5ce;">&gt; putStrLn $ show (getOffset @</span><span style="color:#d08770;">Example</span><span style="color:#c0c5ce;"> @(&#39;</span><span style="color:#d08770;">[]</span><span style="color:#c0c5ce;">)
+</span><span style="color:#d08770;">0
+</span><span style="color:#c0c5ce;">&gt; putStrLn $ show (getOffset @</span><span style="color:#d08770;">Example</span><span style="color:#c0c5ce;"> @(&#39;[ &#39;</span><span style="color:#d08770;">Field </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">a</span><span style="color:#c0c5ce;">&quot;]))
+</span><span style="color:#d08770;">0
+</span><span style="color:#c0c5ce;">&gt; putStrLn $ show (getOffset @</span><span style="color:#d08770;">Example</span><span style="color:#c0c5ce;"> @(&#39;[ &#39;</span><span style="color:#d08770;">Field </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">b</span><span style="color:#c0c5ce;">&quot;]))
+</span><span style="color:#d08770;">8
+</span><span style="color:#c0c5ce;">&gt; putStrLn $ show (getOffset @</span><span style="color:#d08770;">Example</span><span style="color:#c0c5ce;"> @(&#39;[ &#39;</span><span style="color:#d08770;">Field </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">addr, &#39;Index </span><span style="color:#c0c5ce;">&quot;addr32&quot;</span><span style="color:#a3be8c;">, &#39;Field </span><span style="color:#c0c5ce;">&quot;lo&quot; &quot;]))
+</span><span style="color:#d08770;">16
+</span><span style="color:#c0c5ce;">&gt; putStrLn $ show (getOffset @</span><span style="color:#d08770;">Example</span><span style="color:#c0c5ce;"> @(&#39;[ &#39;</span><span style="color:#d08770;">Field </span><span style="color:#c0c5ce;">&quot;</span><span style="color:#a3be8c;">data, &#39;Index 3 ]))
+</span><span style="color:#d08770;">23
+</span></code></pre><h2 id="conclusion">Conclusion</h2>
+<p>One nice aspect on this is that you can efficiently nest structure, and you can
+without a problem re-use the same field names for structure.</p>
+<p>You can also define at compilation all sorts of different offsets and sizes
+that automatically recalculate given their structures, and combine together.</p>
+<p>With this primitive machinery, it's straighforward to define an efficient,
+safe, modular accessors (e.g. peek &amp; poke) functions on top of this.</p>
+<h2 id="code">Code</h2>
+<p>You can find the code:</p>
+<ul>
+<li><a href="https://gist.github.com/vincenthz/9c840ec99172c495a811b9e50c15c788">Code Gist</a></li>
+<li><a href="https://gist.github.com/vincenthz/34f0dc42128491317329b42f00fe5294">Experimental Example Usage Gist</a></li>
+</ul>
+<h2 id="notes">Notes</h2>
+<ol>
+<li>Packing &amp; Padding</li>
+</ol>
+<p>In all this code I consider the C structure packed, and not containing any
+padding. While the rules of alignment/padding could be added to the calculation
+types, I chose to ignore the issue since the developper can always from a
+packed structure definition, add the necessary padding explicitely in the
+definition.  It would also be possible to define special padding types that
+automatically work out their size given how much padding is needed.</p>
+<ol start="2">
+<li>Endianness</li>
+</ol>
+<p>I completely ignore endianness for simplicity purpose, but a real library would
+likely and simply extend the definitions to add explicit endianness for all
+multi-bytes types.</p>
+<ol start="3">
+<li>Nat and Integer</li>
+</ol>
+<p>It would be nice to be able to generate offset in machine Int or Word, instead
+of unbounded Integer.  Sadly the only capability for Nat is to generate Integer
+with <code>natVal</code>.  The optimisation is probably marginal considering it's just a
+constructor away, but it would prevent an unnecessary unwrapping and possibly
+even more efficient code.</p>
+
+
+            </main>
+        </div>
+
+        <footer>
+            <div class="inner">
+                <div class="about-short">
+                    <h2><a href="/about/">About me</a></h2>
+                    <p>I've been developping software for the last 20 years, in many different languages and many
+                        different projects.
+                        My main interests are currently cryptography, security and typed programming</p>
+                    <p>I'm the director of <a href="https://typed.io/">Typed IO</a>, a software contracting company</p>
+                </div>
+                <div class="social">
+                    <a class="icon" href="https://github.com/vincenthz" target="_blank"><img src="/icons/gh.svg"></a>
+                    <a class="icon" href="https://twitter.com/vincenthz" target="_blank"><img src="/icons/tw.svg"></a>
+                    <a class="icon" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;rss.xml"><img src="/icons/rss.svg"></a>
+                </div>
+                <span>&copy; 2014-2021 Vincent Hanquez</span>
+            </div>
+        </footer>
+    </div>
+
+</body>
+
+
+</html>

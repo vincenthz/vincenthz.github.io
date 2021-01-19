@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+    <!-- Enable responsiveness on mobile devices-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+    <title>Typed Chronicles</title>
+
+    <!-- CSS -->
+    <!-- <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/favicon.png" /> -->
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <!-- <link rel="stylesheet" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;print.css" media="print"> -->
+    <!-- <link rel="stylesheet" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;normalize.css"> -->
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;typed.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+    
+
+    
+
+    
+
+    
+
+    <script>function toggle_darkmode() { document.querySelector('body').classList.toggle('dark') }
+    </script>
+
+    
+    
+</head>
+
+<body>
+    <div id="page-outer">
+
+        <div id="page">
+            
+<header>
+  <h1>Typed Chronicles</h1>
+<p class="lead">Vincent Hanquez's adventures</p>
+<!-- <a href="https:&#x2F;&#x2F;vincenthz.github.io">Typed Chronicles</a> -->
+<nav id="nav-site">
+    <ul>
+        <li><a class="icon" href="https:&#x2F;&#x2F;vincenthz.github.io"><img src="/icons/home.svg"></a> </li>
+        <li><a class="icon" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;rss.xml"><img src="/icons/rss.svg"></a>
+        </li>
+        <li><a class="icon" href="https://github.com/vincenthz" target="_blank"><img src="/icons/gh.svg"></a></li>
+        <li><a class="icon" href="https://twitter.com/vincenthz" target="_blank"><img src="/icons/tw.svg"></a></li>
+    </ul>
+</nav>
+
+</header>
+
+
+            <main>
+                
+<h1 class="page-title">Downloading safely</h1>
+<span class="post-date">Published on 2015-05-30</span>
+<p>All too often, things are downloaded without safety from hosts and mirrors.
+Here's a practical guide to know where you stand and improve the situation.</p>
+<span id="continue-reading"></span>
+<p>I've seen countless example of script, Docker file, etc, that
+will do something akin to:</p>
+<pre style="background-color:#2b303b;">
+<code class="language-{.shell}" data-lang="{.shell}"><span style="color:#c0c5ce;">wget http://my-url/package (or curl)
+install package
+</span></code></pre>
+<p>For people that don't understand unix like shell script, that download a
+package on a HTTP server using a plain text connection, then try to install it.</p>
+<p>It's very likely that if you have some piece of automated machinery or a script,
+you want this, to download a very specific data (for example a specific version of a compiler).</p>
+<h2 id="what-can-possibly-go-wrong">What can possibly go wrong ?</h2>
+<p>Pretty much everything:</p>
+<ul>
+<li>Your query could have been intercepted and modified: you don't know which server you're talking to.</li>
+<li>The data could have tempered on the destination (for example, adding a malware in a .tar.gz)</li>
+<li>An unauthorized person could have modified the data (e.g. someone manage to do a release but its not the </li>
+</ul>
+<h2 id="can-t-i-just-use-a-secure-transport-and-be-done">Can't I just use a secure transport and be done ?</h2>
+<p>This is a good idea, but secure transport only secure the transport part.</p>
+<p>A secure transport make sure you know that what you are sending and receiving
+data comes from and go to a specific server without fear of eavedropping and
+meddling.</p>
+<p>But it doesn't gives you any guarantees that the data has not been changed on the server,
+e.g. the server was compromised and the package you're downloading has been tempered.</p>
+<h2 id="signature-to-the-rescue">Signature to the rescue !</h2>
+<p>Usually using GPG signatures, one can make sure that the data has been released
+by the correct person/team. For example, the developers in the team release
+a software signing with their personal keys.</p>
+<p>Now, we can detect that data has been released by a specific person (or team),
+which prevent the data being tempered by third party.</p>
+<p>But still not enough: You still rely on something you don't have any control
+for your security; the gpg key could have been compromised, or the people
+owning the key could have been compromised.</p>
+<h2 id="knowing-what-to-expect">Knowing what to expect</h2>
+<p>A simple technique to represent an arbitrary sized piece of data into a finite
+fingerprint is based on digest supported by a <a href="https://en.wikipedia.org/wiki/Cryptographic_hash_function">cryptographic hash function</a>.</p>
+<p>More specifically we're looking for those 2 properties in the algorithm generating the digest in this case:</p>
+<blockquote>
+<p>it is infeasible to modify a message without changing the hash.
+it is infeasible to find two different messages with the same hash.</p>
+</blockquote>
+<p>By embedding a digest of what you expect to download in your script, 
+you know that no one can modify it without you knowing about it on the
+other side.</p>
+<p>Which means that the security of the transport doesn't matters anymore,
+nor that the security of GPG keys of some people (or group), to determine
+that you have downloaded what you expect.</p>
+<p>It doesn't make anything secure by itself, but it allow you to vet what you
+install, for example by looking at the source, or sandboxing the app, to see what it does,
+in a restricted context. Then you only (or your organisation) become in charge
+of rubber-stamping this specific version with a digest.</p>
+<h2 id="finalizing">Finalizing</h2>
+<p>To conclude, hashing is one of the most powerful and simple technique
+to make sure the data has not changed and it is the exact same thing
+you expect.</p>
+<p>Here a short table on the risks related to transport and validation method used:</p>
+<table><thead><tr><th>Validation Method</th><th>Transport</th><th>MITM</th><th>Tempering</th><th>Author Validated</th></tr></thead><tbody>
+<tr><td>None</td><td>Plain</td><td>Unprotected</td><td>Possible</td><td>No</td></tr>
+<tr><td>None</td><td>Secure</td><td>Protected</td><td>Possible</td><td>No</td></tr>
+<tr><td>GPG</td><td>Plain</td><td>Protected</td><td>Possible</td><td>Yes</td></tr>
+<tr><td>GPG</td><td>Secure</td><td>Protected</td><td>Possible</td><td>Yes</td></tr>
+<tr><td>Hash</td><td>Plain</td><td>Protected</td><td>Impossible</td><td>No</td></tr>
+<tr><td>Hash</td><td>Secure</td><td>Protected</td><td>Impossible</td><td>No</td></tr>
+<tr><td>Hash+GPG</td><td>Plain</td><td>Protected</td><td>Impossible</td><td>Yes</td></tr>
+<tr><td>Hash+GPG</td><td>Secure</td><td>Protected</td><td>Impossible</td><td>Yes</td></tr>
+</tbody></table>
+<p>Note: it's assumed that the algorithm used for each specific purpose are perfect regarding to the properties they provide.</p>
+
+
+            </main>
+        </div>
+
+        <footer>
+            <div class="inner">
+                <div class="about-short">
+                    <h2><a href="/about/">About me</a></h2>
+                    <p>I've been developping software for the last 20 years, in many different languages and many
+                        different projects.
+                        My main interests are currently cryptography, security and typed programming</p>
+                    <p>I'm the director of <a href="https://typed.io/">Typed IO</a>, a software contracting company</p>
+                </div>
+                <div class="social">
+                    <a class="icon" href="https://github.com/vincenthz" target="_blank"><img src="/icons/gh.svg"></a>
+                    <a class="icon" href="https://twitter.com/vincenthz" target="_blank"><img src="/icons/tw.svg"></a>
+                    <a class="icon" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;rss.xml"><img src="/icons/rss.svg"></a>
+                </div>
+                <span>&copy; 2014-2021 Vincent Hanquez</span>
+            </div>
+        </footer>
+    </div>
+
+</body>
+
+
+</html>

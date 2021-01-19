@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+    <!-- Enable responsiveness on mobile devices-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+    <title>Typed Chronicles</title>
+
+    <!-- CSS -->
+    <!-- <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/favicon.png" /> -->
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <!-- <link rel="stylesheet" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;print.css" media="print"> -->
+    <!-- <link rel="stylesheet" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;normalize.css"> -->
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;typed.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+    
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css"
+        integrity="sha512-h7nl+xz8wgDlNM4NqKEM4F1NkIRS17M9+uJwIGwuo8vGqIl4BhuCKdxjWEINm+xyrUjNCnK5dCrhM0sj+wTIXw=="
+        crossorigin="anonymous" />
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.js"
+        integrity="sha512-/CMIhXiDA3m2c9kzRyd97MTb3MC6OVnx4TElQ7fkkoRghwDf6gi41gaT1PwF270W6+J60uTmwgeRpNpJdRV6sg=="
+        crossorigin="anonymous"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/contrib/auto-render.min.js"
+        integrity="sha512-Do7uJAaHZm5OLrIv/yN4w0iG1dbu01kzdMNnFfu/mAqgUk6Nniv2JYHcwH+cNwjqgLcqcuBBk+JRvprLVI8azg=="
+        crossorigin="anonymous" onload="renderMathInElement(document.body, { throwOnError: false });"></script>
+    
+
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/8.8.4/mermaid.min.js"
+        integrity="sha512-as1BF4+iHZ3BVO6LLDQ7zrbvTXM+c/1iZ1qII/c3c4L8Rn5tHLpFUtpaEtBNS92f+xGsCzsD7b62XP3XYap6oA=="
+        crossorigin="anonymous"></script>
+    <script>mermaid.initialize({ startOnLoad: true, theme: 'forest' });</script>
+    
+
+    
+
+    <script>function toggle_darkmode() { document.querySelector('body').classList.toggle('dark') }
+    </script>
+
+    
+    
+</head>
+
+<body>
+    <div id="page-outer">
+
+        <div id="page">
+            
+<header>
+  <h1>Typed Chronicles</h1>
+<p class="lead">Vincent Hanquez's adventures</p>
+<!-- <a href="https:&#x2F;&#x2F;vincenthz.github.io">Typed Chronicles</a> -->
+<nav id="nav-site">
+    <ul>
+        <li><a class="icon" href="https:&#x2F;&#x2F;vincenthz.github.io"><img src="/icons/home.svg"></a> </li>
+        <li><a class="icon" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;rss.xml"><img src="/icons/rss.svg"></a>
+        </li>
+        <li><a class="icon" href="https://github.com/vincenthz" target="_blank"><img src="/icons/gh.svg"></a></li>
+        <li><a class="icon" href="https://twitter.com/vincenthz" target="_blank"><img src="/icons/tw.svg"></a></li>
+    </ul>
+</nav>
+
+</header>
+
+
+            <main>
+                
+<h1 class="page-title">Ouroboros Verifiable Random Function</h1>
+<span class="post-date">Published on 2020-01-26</span>
+<p>Verifiable Random Function (VRF) are one of the key cryptographic primitive for
+<a href="https://eprint.iacr.org/2017/573.pdf">Ouroboros Praos</a>, that allows to participate
+in the block creation lottery. Let's dig in the detail of the tech</p>
+<span id="continue-reading"></span><h1 id="what-is-a-vrf">What is a VRF</h1>
+<p>VRF can be thought as the asymmetric key equivalent to keyed cryptographic hash.
+In a nutshell, it uniquely allows the secret key owner to make a output for a given seed value
+and anyone with the public key can verify that it was generated honestly from the right seed.</p>
+<p>It's easy to see the similarily with a Message Authentication Code (MAC) construction, except
+adding that the capability to generate and verify for different part of the key.</p>
+<p>So, the VRF is mathematically defined as such:</p>
+<ul>
+<li>\( \tt{Output} \in \lbrace 0,1 \rbrace^{vrf} , \tt{Seed} \in \lbrace 0,1 \rbrace^* \)</li>
+<li>\( \tt{generate} : SecretKey \to \lbrace 0,1 \rbrace^* \to \lbrace 0,1 \rbrace^{vrf} \)</li>
+<li>\( \tt{verify} : PublicKey \to \lbrace 0,1 \rbrace^* \to \lbrace 0,1 \rbrace^{vrf} \to \lbrace True,False \rbrace \)</li>
+</ul>
+<p>You can see the similarity compared to the MAC construction:</p>
+<ul>
+<li>\( \tt{generate} : MacKey \to \lbrace 0,1 \rbrace^* \to \lbrace 0,1 \rbrace^{mac} \)</li>
+<li>\( \tt{verify} : MacKey \to \lbrace 0,1 \rbrace^* \to \lbrace 0,1 \rbrace^{mac} \to \lbrace True,False \rbrace \)</li>
+</ul>
+<p>There's plenty of online resources for more thorough and formal explanations of VRFs, and the ouroboros specific use:</p>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Verifiable_random_function">Wikipedia</a></li>
+<li><a href="https://people.csail.mit.edu/silvio/Selected%20Scientific%20Papers/Pseudo%20Randomness/Verifiable_Random_Functions.pdf">Verifiable Random Functions 1999 - PDF</a></li>
+<li><a href="https://eprint.iacr.org/2017/573.pdf">Ouroboros Praos - PDF</a></li>
+</ul>
+<h1 id="how-is-it-used">How is it used ?</h1>
+<p>Each slot will be individually evaluated by each owner of stake in secret.
+When succesfully evaluated, it gives the authorisation on a per slot basis
+to generate a header.</p>
+<p>Given the VRF output, we can map it to a range where the minimum of this range represent
+0% of stake, and the maximum of the range represent 100% of stake:</p>
+<p>$$ number : \lbrace 0,1 \rbrace^{vrf} \to \mathbb{N} $$</p>
+<p>And we effectively evaluate this number to be under the owner threshold:</p>
+<p>$$ \lbrace 0,1 \rbrace^{vrf} \ as\  \mathbb{N} \lt \tt{StakeThreshold} $$ </p>
+<p>This realise the major proposition of proof of stake, given stake in the
+system, allow to speak a new block on the network proportional to the
+stake you have in the system.</p>
+<div class="mermaid ">
+graph TB
+    A[&quot;Generate(epoch_random ++ slot_number)&quot;]
+    A --&gt;|Output| B{&quot;compare stake&quot;}
+    B --&gt;|&lt; Threshold| D[&quot;allowed for this slot&quot;]
+    B --&gt;|&gt;= Threshold| E[&quot;not allowed for this slot&quot;]
+</div>
+<p>So for example, given a 25% stake holder, with a number domain mapped to 8 bits
+(0..255), the threshold is 64, the schedule given to this secret key will be:</p>
+<table><thead><tr><th>Slot number</th><th>VRF Output (decimal)</th><th>Authorisation</th></tr></thead><tbody>
+<tr><td>1</td><td>0</td><td>✅</td></tr>
+<tr><td>2</td><td>124</td><td>❌</td></tr>
+<tr><td>3</td><td>180</td><td>❌</td></tr>
+<tr><td>4</td><td>65</td><td>❌</td></tr>
+<tr><td>5</td><td>80</td><td>❌</td></tr>
+<tr><td>6</td><td>63</td><td>✅</td></tr>
+<tr><td>...</td><td>...</td><td>...</td></tr>
+</tbody></table>
+<p>Every authorisation, give the ability for this stake holder to broadcast a
+block to the network. It doesn't force the stake holder to create this block,
+nor that it means that the stake holder is uniquely able to broadcast for
+this slot either.</p>
+<h1 id="benchmark">Benchmark</h1>
+<p>The actual implementation is using 2HashDH-NIZK, as described in the ouroboros paper.
+The curve choice for the discrete log was narrowed down to curve25519, as it allow
+a secure implementation and is also blazingly fast:</p>
+<p>On x86-64:</p>
+<table><thead><tr><th>Curve</th><th>Function</th><th>Speed</th></tr></thead><tbody>
+<tr><td>Curve25519</td><td>generate</td><td>83 µs</td></tr>
+<tr><td>NIST-P256R1</td><td>generate</td><td>211 µs</td></tr>
+<tr><td>Curve25519</td><td>verify</td><td>103 µs</td></tr>
+<tr><td>NIST-P256R1</td><td>verify</td><td>227 µs</td></tr>
+</tbody></table>
+<p>On Aarch64:</p>
+<table><thead><tr><th>Curve</th><th>Function</th><th>Speed</th></tr></thead><tbody>
+<tr><td>Curve25519</td><td>generate</td><td>1086 µs</td></tr>
+<tr><td>NIST-P256R1</td><td>generate</td><td>1685 µs</td></tr>
+<tr><td>Curve25519</td><td>verify</td><td>1411 µs</td></tr>
+<tr><td>NIST-P256R1</td><td>verify</td><td>1529 µs</td></tr>
+</tbody></table>
+<p>Note: The Curve25519 implementation is using curve25519-dalek and is all in
+rust, while the NIST-P256R1 is using haskell, and bindings to OpenSSL; The
+aarch64 implementation of curve25519-dalek is using normal operation, and
+probably could go faster with some low level optimisation.</p>
+<p>It might sounds insignifiant to optimise at the hundreds of µs scale, but
+given an epoch of 100000 slots, this means the evaluation budget for the
+whole epoch schedule between Curve25519 to P256, move from 8.3s to 21s on x64,
+and 108s to 168s on aarch64.</p>
+<p>Also the verification is done everytime that there's a network block received,
+so it's important to reduce the cost of those operation.</p>
+<p>Last but not least, the pure rust implementation allow seamless production
+ready compilation to webassembly, which allow to run in the context of a
+browser / javascript.</p>
+
+
+            </main>
+        </div>
+
+        <footer>
+            <div class="inner">
+                <div class="about-short">
+                    <h2><a href="/about/">About me</a></h2>
+                    <p>I've been developping software for the last 20 years, in many different languages and many
+                        different projects.
+                        My main interests are currently cryptography, security and typed programming</p>
+                    <p>I'm the director of <a href="https://typed.io/">Typed IO</a>, a software contracting company</p>
+                </div>
+                <div class="social">
+                    <a class="icon" href="https://github.com/vincenthz" target="_blank"><img src="/icons/gh.svg"></a>
+                    <a class="icon" href="https://twitter.com/vincenthz" target="_blank"><img src="/icons/tw.svg"></a>
+                    <a class="icon" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;rss.xml"><img src="/icons/rss.svg"></a>
+                </div>
+                <span>&copy; 2014-2021 Vincent Hanquez</span>
+            </div>
+        </footer>
+    </div>
+
+</body>
+
+
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+    <!-- Enable responsiveness on mobile devices-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+    <title>Typed Chronicles</title>
+
+    <!-- CSS -->
+    <!-- <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/favicon.png" /> -->
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <!-- <link rel="stylesheet" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;print.css" media="print"> -->
+    <!-- <link rel="stylesheet" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;normalize.css"> -->
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;typed.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+    
+
+    
+
+    
+
+    
+
+    <script>function toggle_darkmode() { document.querySelector('body').classList.toggle('dark') }
+    </script>
+
+    
+    
+</head>
+
+<body>
+    <div id="page-outer">
+
+        <div id="page">
+            
+<header>
+  <h1>Typed Chronicles</h1>
+<p class="lead">Vincent Hanquez's adventures</p>
+<!-- <a href="https:&#x2F;&#x2F;vincenthz.github.io">Typed Chronicles</a> -->
+<nav id="nav-site">
+    <ul>
+        <li><a class="icon" href="https:&#x2F;&#x2F;vincenthz.github.io"><img src="/icons/home.svg"></a> </li>
+        <li><a class="icon" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;rss.xml"><img src="/icons/rss.svg"></a>
+        </li>
+        <li><a class="icon" href="https://github.com/vincenthz" target="_blank"><img src="/icons/gh.svg"></a></li>
+        <li><a class="icon" href="https://twitter.com/vincenthz" target="_blank"><img src="/icons/tw.svg"></a></li>
+    </ul>
+</nav>
+
+</header>
+
+
+            <main>
+                
+<h1 class="page-title">haskell crypto platform</h1>
+<span class="post-date">Published on 2013-10-25</span>
+<p>One of my side projects that has been running for couple of years now,
+was to get Cryptography up to scratch in haskell. Back when
+I started <a href="http://hackage.haskell.org/package/tls">TLS</a>, there were many
+various cryptography related projects and libraries. Many were not easy to use,
+none were consistent, many had performance problems.</p>
+<span id="continue-reading"></span>
+<p>Just like the haskell platform, I dreamt of having a go-to set of packages
+for cryptography. This is why i've started this project on a side of actual packages.</p>
+<p>Currently the platform is made of those features:</p>
+<ul>
+<li>ASN.1: a terrible serialization format, that is unfortunately pervasive in cryptography.</li>
+<li>X.509: public certificate infrastructure based on ASN.1.</li>
+<li>symmetric ciphers (block and stream): RC4, DES (inherited from Crypto), 3DES, Blowfish, Camellia, AES</li>
+<li>cryptographic hashes (SHA1, SHA2, SHA3, MD2, MD4, MD5, ...) and siphash</li>
+<li>assymetric ciphers: RSA, DSA, DH</li>
+<li>cryptographic randomness: entropy gathering, Pseudo and random secure bytes generation</li>
+<li>securemem: auto scrubbing &quot;bytestring&quot;.</li>
+</ul>
+<h2 id="a-side-note-about-reimplementing-cryptography">A side note, about reimplementing cryptography</h2>
+<p>Many people would think that it is a foolish project to reimplement cryptography.
+It's undeniable, that cryptography is a hard subject and it's easy to get
+some stuff horribly wrong. And many people would rather use references
+implementations out there (openssl, nacl, ..).</p>
+<p>There's still some values in this, despite not having always the best and most audited implementations:</p>
+<ul>
+<li>portability: all the code available run on all 3 platforms without having to install external libraries</li>
+<li>some cryptography code doesn't require implementation security: for example verifying RSA signature, decrypting your local files for your own purpose, etc.</li>
+<li>More diversity: monoculture is dangerous.</li>
+<li>It's much more haskell friendly :-)</li>
+<li>A common API framework that alternative implementation could/can use.</li>
+</ul>
+<p>Despite not necessarily being the best cryptography code out there,
+I do want to stress that I still consider many of the libraries
+available throught this platform to be good in many contexts.</p>
+<h2 id="we-want-you">We want you ..</h2>
+<p>Despite my end goals, not everything is as good as I would want,
+some ciphers inherited from Crypto are slows, some API not ideal, etc.</p>
+<p>Open a discussion somewhere on one of the tracker, send some pull requests,
+send me email about supporting your favorite feature, etc..</p>
+<p>The organisational part of the platform is not yet defined, while in the process of making stuff
+up, i do value suggestions on how to organize. </p>
+<p>Also, more documentation would be nice, and while i'm trying to document everything, it would
+be better to have end-user trying to document pieces that is not documented well enough.
+As an author, it's sometimes difficult to judge where more or better documentation would be
+needed.</p>
+<h2 id="other-implementations">Other implementations</h2>
+<p>One of the side goals of the platform, that I would like to see developed,
+would be to also provide implementation alternatives with the same API infrastructure.</p>
+<p>Thanks to Stefan Bühler there's already one package that wander in this direction:</p>
+<p><a href="http://hackage.haskell.org/package/nettle">nettle haskell bindings</a></p>
+<p>I'm looking forward to similar packages covering other parts of the platform.</p>
+<h2 id="license">License</h2>
+<p>For maximum usability, everything in the crypto-platform is under the BSD3 license.
+All additions will be required to be under the same (or very similar) license too.</p>
+<h2 id="links">Links</h2>
+<ul>
+<li><a href="https://github.com/vincenthz/hs-crypto-platform">The main repository</a></li>
+<li><a href="https://github.com/vincenthz/hs-crypto-platform/blob/master/README.md">platform README</a></li>
+<li><a href="http://hackage.haskell.org/packages/tag/crypto-platform">individual packages list</a></li>
+</ul>
+<p>There's also a google group where to ask question about the packages:</p>
+<p><a href="https://groups.google.com/forum/#!forum/haskell-crypto-platform">google group - haskell crypto platform</a></p>
+<p>And of course, the issue tracker of either specific packages or the platform one on github.</p>
+<p>Enjoy,</p>
+
+
+            </main>
+        </div>
+
+        <footer>
+            <div class="inner">
+                <div class="about-short">
+                    <h2><a href="/about/">About me</a></h2>
+                    <p>I've been developping software for the last 20 years, in many different languages and many
+                        different projects.
+                        My main interests are currently cryptography, security and typed programming</p>
+                    <p>I'm the director of <a href="https://typed.io/">Typed IO</a>, a software contracting company</p>
+                </div>
+                <div class="social">
+                    <a class="icon" href="https://github.com/vincenthz" target="_blank"><img src="/icons/gh.svg"></a>
+                    <a class="icon" href="https://twitter.com/vincenthz" target="_blank"><img src="/icons/tw.svg"></a>
+                    <a class="icon" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;rss.xml"><img src="/icons/rss.svg"></a>
+                </div>
+                <span>&copy; 2014-2021 Vincent Hanquez</span>
+            </div>
+        </footer>
+    </div>
+
+</body>
+
+
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+    <!-- Enable responsiveness on mobile devices-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+    <title>Typed Chronicles</title>
+
+    <!-- CSS -->
+    <!-- <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/favicon.png" /> -->
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <!-- <link rel="stylesheet" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;print.css" media="print"> -->
+    <!-- <link rel="stylesheet" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;normalize.css"> -->
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;typed.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+    
+
+    
+
+    
+
+    
+
+    <script>function toggle_darkmode() { document.querySelector('body').classList.toggle('dark') }
+    </script>
+
+    
+    
+</head>
+
+<body>
+    <div id="page-outer">
+
+        <div id="page">
+            
+<header>
+  <h1>Typed Chronicles</h1>
+<p class="lead">Vincent Hanquez's adventures</p>
+<!-- <a href="https:&#x2F;&#x2F;vincenthz.github.io">Typed Chronicles</a> -->
+<nav id="nav-site">
+    <ul>
+        <li><a class="icon" href="https:&#x2F;&#x2F;vincenthz.github.io"><img src="/icons/home.svg"></a> </li>
+        <li><a class="icon" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;rss.xml"><img src="/icons/rss.svg"></a>
+        </li>
+        <li><a class="icon" href="https://github.com/vincenthz" target="_blank"><img src="/icons/gh.svg"></a></li>
+        <li><a class="icon" href="https://twitter.com/vincenthz" target="_blank"><img src="/icons/tw.svg"></a></li>
+    </ul>
+</nav>
+
+</header>
+
+
+            <main>
+                
+<h1 class="page-title">Compiling GHC with Stack for Stack</h1>
+<span class="post-date">Published on 2017-07-20</span>
+<p>While Stack is really good at magically summoning all the compilers you need,
+adding your own compiled compiler is not quite documented. For testing specific
+version that doesn't have a release, or testing your own compiler modification,
+it's useful to add your own compiler in a build tool that by default works
+in a multi compiler settings.</p>
+<span id="continue-reading"></span>
+<p>First make sure you have the right building environment (a C compiler, the make
+tool, etc.).  Also alex and happy are required, which you can get with:</p>
+<pre style="background-color:#2b303b;">
+<code>$ stack install alex happy
+</code></pre>
+<p>One of the useful thing that Stack does, is there's no system compiler anymore,
+which manifest itself by not having ghc on the $PATH.  GHC requires one to
+bootstrap itself, so we put the default stack one in the $PATH by starting a
+new shell environment:</p>
+<pre style="background-color:#2b303b;">
+<code>$ stack exec --no-ghc-package-path bash 
+</code></pre><h2 id="build-ghc">Build GHC</h2>
+<p>Clone the sources needed:</p>
+<pre style="background-color:#2b303b;">
+<code>$ git clone --recursive https://github.com/ghc/ghc
+</code></pre>
+<p>This will obviously give you the latest HEAD, so if you want
+to rewind to a specific version, do it here.</p>
+<p>Now we just build GHC; apply variant of those steps if you want
+specific configuration here (see GHC building guide):</p>
+<pre style="background-color:#2b303b;">
+<code>$ cd ghc
+$ ./boot
+$ ./configure
+$ make
+</code></pre><h2 id="make-a-binary-dist">Make a binary dist</h2>
+<p>It's possible to skip this step by having ./configure called with the right
+prefix above and doing <code>make install</code> now, but in the spirit of caching &amp;
+re-use, and also to adopt the exact same procedure that stack is doing when
+installing a GHC compiler, we will create a binary dist.</p>
+<p>To create a binary dist:</p>
+<pre style="background-color:#2b303b;">
+<code>$ make binary-dist
+</code></pre>
+<p>Now if everything went according to plan, you have a tarball on the root of the
+ghc build repository in a format vaguely of <code>ghc-$VERSION-$ARCH-$SYSTEM.tar.xz</code>.
+at this stage if you plan to reuse, you can cache it somewhere, make it
+available for your company, etc..</p>
+<h2 id="install-for-stack">Install for stack</h2>
+<p>Unpack the bindist in a temp dir (don't forget to replace the variables):</p>
+<pre style="background-color:#2b303b;">
+<code>$ mkdir $TMPDIR
+$ cp $TARBALL $TMPDIR
+$ tar xvJf $TARBALL
+</code></pre>
+<p>Then run the bindist to install itself to the right place (again replacing the variables):</p>
+<pre style="background-color:#2b303b;">
+<code>$ cd $TARBALLDIR
+$ ./configure --prefix=$(stack path --programs)/$GHCVER
+$ make install
+$ echo -e &quot;installed&quot; &gt; $(stack path --programs)/$GHCVER.installed
+</code></pre><h2 id="configure-your-compiler">Configure your compiler</h2>
+<p>Now create a new <code>my.yaml</code> file to use your new compiler:</p>
+<pre style="background-color:#2b303b;">
+<code>compiler: $GHCVER
+compiler-check: match-exact
+resolver: $RESOLVER
+allow-newer: true
+</code></pre>
+<p>Make sure it works:</p>
+<pre style="background-color:#2b303b;">
+<code>$ stack --stack-yaml my.yaml ghc -- --version
+$GHCVER
+</code></pre>
+<p>That's it, it's all ready.</p>
+<pre style="background-color:#2b303b;">
+<code>$ stack --stack-yaml my.yaml build
+...
+</code></pre>
+
+            </main>
+        </div>
+
+        <footer>
+            <div class="inner">
+                <div class="about-short">
+                    <h2><a href="/about/">About me</a></h2>
+                    <p>I've been developping software for the last 20 years, in many different languages and many
+                        different projects.
+                        My main interests are currently cryptography, security and typed programming</p>
+                    <p>I'm the director of <a href="https://typed.io/">Typed IO</a>, a software contracting company</p>
+                </div>
+                <div class="social">
+                    <a class="icon" href="https://github.com/vincenthz" target="_blank"><img src="/icons/gh.svg"></a>
+                    <a class="icon" href="https://twitter.com/vincenthz" target="_blank"><img src="/icons/tw.svg"></a>
+                    <a class="icon" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;rss.xml"><img src="/icons/rss.svg"></a>
+                </div>
+                <span>&copy; 2014-2021 Vincent Hanquez</span>
+            </div>
+        </footer>
+    </div>
+
+</body>
+
+
+</html>

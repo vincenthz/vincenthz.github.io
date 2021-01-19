@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+    <!-- Enable responsiveness on mobile devices-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+    <title>Typed Chronicles</title>
+
+    <!-- CSS -->
+    <!-- <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/favicon.png" /> -->
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <!-- <link rel="stylesheet" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;print.css" media="print"> -->
+    <!-- <link rel="stylesheet" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;normalize.css"> -->
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;typed.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+    
+
+    
+
+    
+
+    
+
+    <script>function toggle_darkmode() { document.querySelector('body').classList.toggle('dark') }
+    </script>
+
+    
+    
+</head>
+
+<body>
+    <div id="page-outer">
+
+        <div id="page">
+            
+<header>
+  <h1>Typed Chronicles</h1>
+<p class="lead">Vincent Hanquez's adventures</p>
+<!-- <a href="https:&#x2F;&#x2F;vincenthz.github.io">Typed Chronicles</a> -->
+<nav id="nav-site">
+    <ul>
+        <li><a class="icon" href="https:&#x2F;&#x2F;vincenthz.github.io"><img src="/icons/home.svg"></a> </li>
+        <li><a class="icon" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;rss.xml"><img src="/icons/rss.svg"></a>
+        </li>
+        <li><a class="icon" href="https://github.com/vincenthz" target="_blank"><img src="/icons/gh.svg"></a></li>
+        <li><a class="icon" href="https://twitter.com/vincenthz" target="_blank"><img src="/icons/tw.svg"></a></li>
+    </ul>
+</nav>
+
+</header>
+
+
+            <main>
+                
+<h1 class="page-title">cabal-db : simple tool for cabal database queries</h1>
+<span class="post-date">Published on 2013-03-13</span>
+<p>Following previous experiment with Cabal library and querying the
+state of the hackage world <a href="http://tab.snarc.org/posts/haskell/2013-03-03-playing-with-cabal-lib.html">here</a>,
+I've extended and wrapped the tool into a cabal package.</p>
+<span id="continue-reading"></span><h1 id="a-simple-tool-for-cabal-database-query">A simple tool for cabal database query</h1>
+<ul>
+<li><a href="http://hackage.haskell.org/package/cabal-db">hackage</a></li>
+<li><a href="http://github.com/vincenthz/cabal-db/">github</a></li>
+</ul>
+<p>In addition to the graph feature, i've add and added some
+others commands that i consolidated from some misc scripts:</p>
+<ul>
+<li>diff: run the diff command between two different versions of a package.</li>
+<li>revdeps: print all reverse dependencies of a package.</li>
+<li>info: print all available versions of a package and some misc information.</li>
+<li>search-author: search all the database for match in the author field.</li>
+<li>search-maintainer: search all the database for match in the maintainer field.</li>
+</ul>
+<p>The revdeps feature of cabal-db can be also found in a web friendly yesod app with the
+very useful <a href="http://packdeps.haskellers.com/">packdeps</a>
+or using the source from <a href="https://github.com/snoyberg/packdeps">Michael Snoyman's packdeps repository</a></p>
+<p>The diff feature of cabal-db can be found using a gitweb frontend on <a href="http://hdiff.luite.com/">hdiff</a></p>
+<h2 id="dependency-graph">Dependency Graph</h2>
+<p>After my previous <a href="http://tab.snarc.org/posts/haskell/2013-03-03-playing-with-cabal-lib.html">experiment</a> to
+display graph, i've added some nice improvements to make it even more useful.</p>
+<ul>
+<li>color: red for the packages queried, and green for the package in the platform. Easier to see
+how &quot;far&quot; you are from just the platform packages.</li>
+<li>hiding packages from the output: useful to hide pervasive packages like base or bytestring,
+that doesn't necessarily add information to your graph (e.g. every one depends on base)</li>
+</ul>
+<p>Running on a single package (cryptohash):</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">    $ cabal-db graph --hide base --hide bytestring cryptohash
+    ...
+</span></code></pre>
+<p><img src="/pictures/posts/2013-03-03-graph-cryptohash.png" alt="cryptohash deps rendered by dot" /></p>
+<p>With this i can produce the graph of all the package i maintain with a single line:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">    $ cabal-db graph --hide base --hide bytestring $(cabal-db search-maintainer Hanquez | xargs)
+    ...
+</span></code></pre>
+<p><a href="http://tab.snarc.org/pictures/posts/2013-03-03-graph-all.png">all my pkgs rendered by dot</a></p>
+<h2 id="diff">Diff</h2>
+<p>Running diff between hit 0.4.2 and hit 0.4.3:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">$ cabal-db diff hit 0.4.2 0.4.3
+diff -Naur hit-0.4.2/Data/Git/Storage/FileWriter.hs hit-0.4.3/Data/Git/Storage/FileWriter.hs
+--- hit-0.4.2/Data/Git/Storage/FileWriter.hs    2013-03-12 11:08:25.453936222 +0000
++++ hit-0.4.3/Data/Git/Storage/FileWriter.hs    2013-03-12 11:08:25.963936224 +0000
+@@ -20,6 +20,14 @@
+ 
+ defaultCompression = 6
+ 
++-- this is a copy of modifyIORef&#39; found in base 4.6 (ghc 7.6),
++-- for older version of base.
++modifyIORefStrict :: IORef a -&gt; (a -&gt; a) -&gt; IO ()
++modifyIORefStrict ref f = do
++    x &lt;- readIORef ref
++    let x&#39; = f x
++    x&#39; `seq` writeIORef ref x&#39;
++
+ data FileWriter = FileWriter
+         { writerHandle  :: Handle
+         , writerDeflate :: Deflate
+@@ -42,7 +50,7 @@
+ postDeflate handle = maybe (return ()) (B.hPut handle)
+ 
+ fileWriterOutput (FileWriter { writerHandle = handle, writerDigest = digest, writerDeflate = deflate }) bs = do
+-        modifyIORef&#39; digest (\ctx -&gt; SHA1.update ctx bs)
++        modifyIORefStrict digest (\ctx -&gt; SHA1.update ctx bs)
+         (&gt;&gt;= postDeflate handle) =&lt;&lt; feedDeflate deflate bs
+ 
+ fileWriterClose (FileWriter { writerHandle = handle, writerDeflate = deflate }) =
+diff -Naur hit-0.4.2/hit.cabal hit-0.4.3/hit.cabal
+--- hit-0.4.2/hit.cabal 2013-03-12 11:08:25.460602889 +0000
++++ hit-0.4.3/hit.cabal 2013-03-12 11:08:25.973936225 +0000
+@@ -1,5 +1,5 @@
+ Name:                hit
+-Version:             0.4.2
++Version:             0.4.3
+ Synopsis:            Git operations in haskell
+ Description:
+</span></code></pre><h2 id="revdeps">Revdeps</h2>
+<p>Or running revdeps on tls:</p>
+<pre style="background-color:#2b303b;">
+<code><span style="color:#c0c5ce;">$ cabal-db revdeps tls
+yesod-platform: tls (==1.1.2)
+warp-tls: tls (&gt;=1.1)
+tls-extra: tls (&gt;=1.1.0 &amp;&amp; &lt;1.2.0)
+tls-debug: tls (&gt;=1.1 &amp;&amp; &lt;1.2 &amp;&amp; &gt;=1.1 &amp;&amp; &lt;1.2 &amp;&amp; &gt;=1.1 &amp;&amp; &lt;1.2 &amp;&amp; &gt;=1.1 &amp;&amp; &lt;1.2)
+pontarius-xmpp: tls (&gt;=1.0.0)
+network-conduit-tls: tls (&gt;=0.9)
+network-api-support: tls (&gt;=0.9)
+kevin: tls (==1.1.*)
+imm: tls (-any)
+http-proxy: tls (&gt;=0.9 &amp;&amp; &lt;0.10)
+http-enumerator: tls (&gt;=0.9 &amp;&amp; &lt;0.10)
+http-conduit-downloader: tls (-any)
+http-conduit-browser: tls (-any)
+http-conduit: tls (&gt;=1.1.0)
+ez-couch: tls (-any)
+dropbox-sdk: tls (==0.9.*)
+connection: tls (&gt;=1.0)
+azure-service-api: tls (&gt;=1.0 &amp;&amp; &lt;1.1)
+</span></code></pre>
+
+            </main>
+        </div>
+
+        <footer>
+            <div class="inner">
+                <div class="about-short">
+                    <h2><a href="/about/">About me</a></h2>
+                    <p>I've been developping software for the last 20 years, in many different languages and many
+                        different projects.
+                        My main interests are currently cryptography, security and typed programming</p>
+                    <p>I'm the director of <a href="https://typed.io/">Typed IO</a>, a software contracting company</p>
+                </div>
+                <div class="social">
+                    <a class="icon" href="https://github.com/vincenthz" target="_blank"><img src="/icons/gh.svg"></a>
+                    <a class="icon" href="https://twitter.com/vincenthz" target="_blank"><img src="/icons/tw.svg"></a>
+                    <a class="icon" href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;rss.xml"><img src="/icons/rss.svg"></a>
+                </div>
+                <span>&copy; 2014-2021 Vincent Hanquez</span>
+            </div>
+        </footer>
+    </div>
+
+</body>
+
+
+</html>
