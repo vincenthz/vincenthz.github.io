@@ -1,0 +1,17 @@
+{% set data = load_data(path=path, format="json") %}
+
+<script type="text/javascript">
+    window.onload = function () {
+	    {% for c in data.containers %}
+	renderMyChart(chartContainer{{ c.id }}, {{ c.data | json_encode() | safe }});
+	    {% endfor %}
+    function renderMyChart(theDIVid, myData) {
+        var chart = new CanvasJS.Chart(theDIVid, {
+            data: myData
+        });
+        chart.render();
+    }
+    }
+</script>
+
+

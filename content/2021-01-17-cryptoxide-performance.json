@@ -1,0 +1,124 @@
+{
+   "containers": [
+      {
+         "id": 1,
+         "data": [
+            {
+               "type": "column",
+               "dataPoints": [
+                  {
+                     "label": "sha2",
+                     "y": 280
+                  },
+                  {
+                     "label": "cryptoxide",
+                     "y": 327
+                  },
+                  {
+                     "label": "ring",
+                     "y": 585
+                  },
+                  {
+                     "label": "sha2 (nat)",
+                     "y": 353
+                  },
+                  {
+                     "label": "cryptoxide (nat)",
+                     "y": 482
+                  },
+                  {
+                     "label": "ring (nat)",
+                     "y": 506
+                  }
+               ]
+            }
+         ]
+      },
+      {
+         "id": 2,
+         "data": [
+            {
+               "type": "column",
+               "dataPoints": [
+                  {
+                     "label": "sha2",
+                     "y": 473
+                  },
+                  {
+                     "label": "cryptoxide",
+                     "y": 479
+                  },
+                  {
+                     "label": "ring",
+                     "y": 752
+                  },
+                  {
+                     "label": "sha2 (nat)",
+                     "y": 571
+                  },
+                  {
+                     "label": "cryptoxide (nat)",
+                     "y": 583
+                  },
+                  {
+                     "label": "ring (nat)",
+                     "y": 759
+                  }
+               ]
+            }
+         ]
+      },
+      {
+         "id": 3,
+         "data": [
+            {
+               "type": "column",
+               "dataPoints": [
+                  {
+                     "label": "blake2",
+                     "y": 972
+                  },
+                  {
+                     "label": "cryptoxide",
+                     "y": 981
+                  },
+                  {
+                     "label": "blake2 (nat)",
+                     "y": 1004
+                  },
+                  {
+                     "label": "cryptoxide (nat)",
+                     "y": 1486
+                  }
+               ]
+            }
+         ]
+      },
+      {
+         "id": 4,
+         "data": [
+            {
+               "type": "column",
+               "dataPoints": [
+                  {
+                     "label": "blake2",
+                     "y": 585
+                  },
+                  {
+                     "label": "cryptoxide",
+                     "y": 625
+                  },
+                  {
+                     "label": "blake2 (nat)",
+                     "y": 580
+                  },
+                  {
+                     "label": "cryptoxide (nat)",
+                     "y": 886
+                  }
+               ]
+            }
+         ]
+      }
+   ]
+}
