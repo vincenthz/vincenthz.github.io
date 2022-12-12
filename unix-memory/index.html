@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <title>unix memory - Vincent Hanquez</title>
+    
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"><meta name="description" content="Vincent Hanquez&#x27;s adventures unix memory "/><meta name="keywords" content="programming, haskell, unix, memory, mmap" />
+    <meta property="og:title" content="Typed Chronicles -&nbsp;unix memory" />
+    <meta property="og:type" content="website"/><meta property="og:url" content="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;unix-memory&#x2F;"/><meta property="og:description" content="Vincent Hanquez&#x27;s adventures"/>
+    <link rel="preload" href="https://vincenthz.github.io/assets/fonts/FiraCode-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" href="https://vincenthz.github.io/assets/fonts/FiraCode-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://vincenthz.github.io/style.css?h=f8c7bc50801cb0dd9da65fd930c01ca7fb7efd801345957f21cba38c367faec8">
+    <link rel="stylesheet" href=" https://vincenthz.github.io/color/orange.css?h=aee32970acd19d5cf88d42505796de4e31aa73fc58a07e61aa2f57fae305de50">
+    
+<link rel="alternate" type="application/atom+xml" title="Typed Chronicles RSS" href="https://vincenthz.github.io/atom.xml"></head>
+    <body>
+        <div class="container">
+<header class="header">
+    <div class="header__inner">
+        <div class="header__logo">
+            <a href="&#x2F;">
+    <div class="logo">
+        Typed Chronicles
+    </div>
+</a>
+        </div>
+        <div class="menu-trigger">menu</div>
+    </div>
+    
+    <nav class="menu">
+        <ul class="menu__inner menu__inner--desktop">
+            
+            
+                    <li>
+                        <a href="
+    
+        https://vincenthz.github.io/about
+    
+">about</a>
+                    </li>
+                
+            </ul>
+
+        <ul class="menu__inner menu__inner--mobile">
+            
+        <li>
+            <a href="
+    
+        https://vincenthz.github.io/about
+    
+">about</a>
+        </li>
+        </ul>
+    </nav>
+
+    </header>
+<div class="content"><article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;unix-memory&#x2F;">unix memory</a>
+            </h1>
+            
+    <div class="post-meta">
+        <span class="post-date">2014.02.25
+                </span>
+
+        <span class="post-author"></span>
+
+        
+
+    
+    :: {<a href="https://vincenthz.github.io/categories/programming/">programming</a>} 
+
+            
+    ::
+    #<a href="https://vincenthz.github.io/tags/haskell/">haskell</a>
+        
+    #<a href="https://vincenthz.github.io/tags/unix/">unix</a>
+        
+    #<a href="https://vincenthz.github.io/tags/memory/">memory</a>
+        
+    #<a href="https://vincenthz.github.io/tags/mmap/">mmap</a>
+        
+    
+            
+        
+    </div>
+
+            
+    
+</header><p>On unix system, we get access to syscalls that maps files or devices into
+memory. The main syscall is mmap, but there's also some others syscalls in the
+same family to handle mapped memories like mlock, munlock, mprotect, madvise,
+msync.</p>
+<span id="continue-reading"></span>
+<p>Some limited mmap access is available through the
+<a href="http://hackage.haskell.org/package/mmap">mmap</a> or
+<a href="http://hackage.haskell.org/package/bytestring-mmap">bytestring-mmap</a> packages,
+but both provide a high level access to those API.</p>
+<p>To the rescue, I've released
+<a href="http://hackage.haskell.org/package/unix-memory">unix-memory</a>.  This provide
+low level access to all those syscalls. In some place, the API presented is
+slightly better than the raw API.</p>
+<p>This package is supposed to be ephemeral; The goal is to fold this package to
+the venerable <a href="http://hackage.haskell.org/package/unix">unix</a> package when this
+becomes less experimental, more stable and is known to work on different
+unixoid platforms.  If and when this happens, then this package will just
+provide compatibility for old versions and eventually be deprecated.</p>
+<p>Manipulating memory is unsafe in general, so don't expect any safety from this
+package, by design. Also if you don't know what you're doing, don't use those
+APIs; It's difficult to get right.</p>
+<p>But it also allow interesting patterns when you cooperate with the operating system
+to efficiently map files, and devices as virtual memory.</p>
+<p>A simple example opening the &quot;/dev/zero&quot; device first memory page, and reading 4096 bytes from it:</p>
+<pre data-lang="{.haskell .numberLines}" style="background-color:#191919;color:#ffffff;" class="language-{.haskell .numberLines} "><code class="language-{.haskell .numberLines}" data-lang="{.haskell .numberLines}"><span>import System.Posix.IO
+</span><span>import System.Posix.Memory
+</span><span>import Control.Monad
+</span><span>import Control.Exception (bracket)
+</span><span>import Foreign.C.Types
+</span><span>import Foreign.Storable
+</span><span>
+</span><span>bracket (openFd &quot;/dev/zero&quot; ReadWrite Nothing defaultFileFlags) closeFd $ \fd -&gt;
+</span><span>  bracket (memoryMap Nothing 4096 [MemoryProtectionRead] MemoryMapPrivate (Just fd) 0)
+</span><span>          (\mem -&gt; memoryUnmap mem 4096)
+</span><span>          (\mem -&gt; mapM (peekElemOff mem) [0..4095])
+</span></code></pre>
+
+
+        
+    
+
+        
+        
+    </article></div>
+    <div class="pagination">
+        <div class="pagination__buttons">
+            </div>
+    </div>
+<footer class="footer">
+                    <div class="footer__inner"><div class="copyright copyright--user">copyright (C) 2015-2022 Vincent Hanquez</div>
+    <script type="text/javascript" src="https://vincenthz.github.io/assets/js/main.js"></script>
+</div>
+                    
+
+                </footer></div>
+    </body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <title>Compiling GHC with Stack for Stack - Vincent Hanquez</title>
+    
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"><meta name="description" content="Vincent Hanquez&#x27;s adventures Compiling GHC with Stack for Stack "/><meta name="keywords" content="programming, haskell, ghc, stack" />
+    <meta property="og:title" content="Typed Chronicles -&nbsp;Compiling GHC with Stack for Stack" />
+    <meta property="og:type" content="website"/><meta property="og:url" content="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;ghc-stack&#x2F;"/><meta property="og:description" content="Vincent Hanquez&#x27;s adventures"/>
+    <link rel="preload" href="https://vincenthz.github.io/assets/fonts/FiraCode-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" href="https://vincenthz.github.io/assets/fonts/FiraCode-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://vincenthz.github.io/style.css?h=f8c7bc50801cb0dd9da65fd930c01ca7fb7efd801345957f21cba38c367faec8">
+    <link rel="stylesheet" href=" https://vincenthz.github.io/color/orange.css?h=aee32970acd19d5cf88d42505796de4e31aa73fc58a07e61aa2f57fae305de50">
+    
+<link rel="alternate" type="application/atom+xml" title="Typed Chronicles RSS" href="https://vincenthz.github.io/atom.xml"></head>
+    <body>
+        <div class="container">
+<header class="header">
+    <div class="header__inner">
+        <div class="header__logo">
+            <a href="&#x2F;">
+    <div class="logo">
+        Typed Chronicles
+    </div>
+</a>
+        </div>
+        <div class="menu-trigger">menu</div>
+    </div>
+    
+    <nav class="menu">
+        <ul class="menu__inner menu__inner--desktop">
+            
+            
+                    <li>
+                        <a href="
+    
+        https://vincenthz.github.io/about
+    
+">about</a>
+                    </li>
+                
+            </ul>
+
+        <ul class="menu__inner menu__inner--mobile">
+            
+        <li>
+            <a href="
+    
+        https://vincenthz.github.io/about
+    
+">about</a>
+        </li>
+        </ul>
+    </nav>
+
+    </header>
+<div class="content"><article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;ghc-stack&#x2F;">Compiling GHC with Stack for Stack</a>
+            </h1>
+            
+    <div class="post-meta">
+        <span class="post-date">2017.07.20
+                </span>
+
+        <span class="post-author"></span>
+
+        
+
+    
+    :: {<a href="https://vincenthz.github.io/categories/programming/">programming</a>} 
+
+            
+    ::
+    #<a href="https://vincenthz.github.io/tags/haskell/">haskell</a>
+        
+    #<a href="https://vincenthz.github.io/tags/ghc/">ghc</a>
+        
+    #<a href="https://vincenthz.github.io/tags/stack/">stack</a>
+        
+    
+            
+        
+    </div>
+
+            
+    
+</header><p>While Stack is really good at magically summoning all the compilers you need,
+adding your own compiled compiler is not quite documented. For testing specific
+version that doesn't have a release, or testing your own compiler modification,
+it's useful to add your own compiler in a build tool that by default works
+in a multi compiler settings.</p>
+<span id="continue-reading"></span>
+<p>First make sure you have the right building environment (a C compiler, the make
+tool, etc.).  Also alex and happy are required, which you can get with:</p>
+<pre style="background-color:#191919;color:#ffffff;"><code><span>$ stack install alex happy
+</span></code></pre>
+<p>One of the useful thing that Stack does, is there's no system compiler anymore,
+which manifest itself by not having ghc on the $PATH.  GHC requires one to
+bootstrap itself, so we put the default stack one in the $PATH by starting a
+new shell environment:</p>
+<pre style="background-color:#191919;color:#ffffff;"><code><span>$ stack exec --no-ghc-package-path bash 
+</span></code></pre>
+<h2 id="build-ghc">Build GHC<a class="zola-anchor" href="#build-ghc" aria-label="Anchor link for: build-ghc">§</a>
+</h2>
+<p>Clone the sources needed:</p>
+<pre style="background-color:#191919;color:#ffffff;"><code><span>$ git clone --recursive https://github.com/ghc/ghc
+</span></code></pre>
+<p>This will obviously give you the latest HEAD, so if you want
+to rewind to a specific version, do it here.</p>
+<p>Now we just build GHC; apply variant of those steps if you want
+specific configuration here (see GHC building guide):</p>
+<pre style="background-color:#191919;color:#ffffff;"><code><span>$ cd ghc
+</span><span>$ ./boot
+</span><span>$ ./configure
+</span><span>$ make
+</span></code></pre>
+<h2 id="make-a-binary-dist">Make a binary dist<a class="zola-anchor" href="#make-a-binary-dist" aria-label="Anchor link for: make-a-binary-dist">§</a>
+</h2>
+<p>It's possible to skip this step by having ./configure called with the right
+prefix above and doing <code>make install</code> now, but in the spirit of caching &amp;
+re-use, and also to adopt the exact same procedure that stack is doing when
+installing a GHC compiler, we will create a binary dist.</p>
+<p>To create a binary dist:</p>
+<pre style="background-color:#191919;color:#ffffff;"><code><span>$ make binary-dist
+</span></code></pre>
+<p>Now if everything went according to plan, you have a tarball on the root of the
+ghc build repository in a format vaguely of <code>ghc-$VERSION-$ARCH-$SYSTEM.tar.xz</code>.
+at this stage if you plan to reuse, you can cache it somewhere, make it
+available for your company, etc..</p>
+<h2 id="install-for-stack">Install for stack<a class="zola-anchor" href="#install-for-stack" aria-label="Anchor link for: install-for-stack">§</a>
+</h2>
+<p>Unpack the bindist in a temp dir (don't forget to replace the variables):</p>
+<pre style="background-color:#191919;color:#ffffff;"><code><span>$ mkdir $TMPDIR
+</span><span>$ cp $TARBALL $TMPDIR
+</span><span>$ tar xvJf $TARBALL
+</span></code></pre>
+<p>Then run the bindist to install itself to the right place (again replacing the variables):</p>
+<pre style="background-color:#191919;color:#ffffff;"><code><span>$ cd $TARBALLDIR
+</span><span>$ ./configure --prefix=$(stack path --programs)/$GHCVER
+</span><span>$ make install
+</span><span>$ echo -e &quot;installed&quot; &gt; $(stack path --programs)/$GHCVER.installed
+</span></code></pre>
+<h2 id="configure-your-compiler">Configure your compiler<a class="zola-anchor" href="#configure-your-compiler" aria-label="Anchor link for: configure-your-compiler">§</a>
+</h2>
+<p>Now create a new <code>my.yaml</code> file to use your new compiler:</p>
+<pre style="background-color:#191919;color:#ffffff;"><code><span>compiler: $GHCVER
+</span><span>compiler-check: match-exact
+</span><span>resolver: $RESOLVER
+</span><span>allow-newer: true
+</span></code></pre>
+<p>Make sure it works:</p>
+<pre style="background-color:#191919;color:#ffffff;"><code><span>$ stack --stack-yaml my.yaml ghc -- --version
+</span><span>$GHCVER
+</span></code></pre>
+<p>That's it, it's all ready.</p>
+<pre style="background-color:#191919;color:#ffffff;"><code><span>$ stack --stack-yaml my.yaml build
+</span><span>...
+</span></code></pre>
+
+
+        
+    
+
+        
+        
+    </article></div>
+    <div class="pagination">
+        <div class="pagination__buttons">
+            </div>
+    </div>
+<footer class="footer">
+                    <div class="footer__inner"><div class="copyright copyright--user">copyright (C) 2015-2022 Vincent Hanquez</div>
+    <script type="text/javascript" src="https://vincenthz.github.io/assets/js/main.js"></script>
+</div>
+                    
+
+                </footer></div>
+    </body>
+</html>

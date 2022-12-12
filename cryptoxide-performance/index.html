@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <title>Cryptoxide perf (SHA2 &#x2F; Blake2) - Vincent Hanquez</title>
+    
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"><meta name="description" content="Vincent Hanquez&#x27;s adventures Cryptoxide perf (SHA2 &#x2F; Blake2) "/><meta name="keywords" content="cryptography, cryptography, performance, benchmark" />
+    <meta property="og:title" content="Typed Chronicles -&nbsp;Cryptoxide perf (SHA2 &#x2F; Blake2)" />
+    <meta property="og:type" content="website"/><meta property="og:url" content="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;cryptoxide-performance&#x2F;"/><meta property="og:description" content="Vincent Hanquez&#x27;s adventures"/>
+    <link rel="preload" href="https://vincenthz.github.io/assets/fonts/FiraCode-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" href="https://vincenthz.github.io/assets/fonts/FiraCode-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://vincenthz.github.io/style.css?h=f8c7bc50801cb0dd9da65fd930c01ca7fb7efd801345957f21cba38c367faec8">
+    <link rel="stylesheet" href=" https://vincenthz.github.io/color/orange.css?h=aee32970acd19d5cf88d42505796de4e31aa73fc58a07e61aa2f57fae305de50">
+    
+<link rel="alternate" type="application/atom+xml" title="Typed Chronicles RSS" href="https://vincenthz.github.io/atom.xml">
+  
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/canvasjs/1.7.0/canvasjs.min.js"
+        integrity="sha512-FJ2OYvUIXUqCcPf1stu+oTBlhn54W0UisZB/TNrZaVMHHhYvLBV9jMbvJYtvDe5x/WVaoXZ6KB+Uqe5hT2vlyA=="
+        crossorigin="anonymous"></script>
+
+
+  </head>
+    <body>
+        <div class="container">
+<header class="header">
+    <div class="header__inner">
+        <div class="header__logo">
+            <a href="&#x2F;">
+    <div class="logo">
+        Typed Chronicles
+    </div>
+</a>
+        </div>
+        <div class="menu-trigger">menu</div>
+    </div>
+    
+    <nav class="menu">
+        <ul class="menu__inner menu__inner--desktop">
+            
+            
+                    <li>
+                        <a href="
+    
+        https://vincenthz.github.io/about
+    
+">about</a>
+                    </li>
+                
+            </ul>
+
+        <ul class="menu__inner menu__inner--mobile">
+            
+        <li>
+            <a href="
+    
+        https://vincenthz.github.io/about
+    
+">about</a>
+        </li>
+        </ul>
+    </nav>
+
+    </header>
+<div class="content"><article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;cryptoxide-performance&#x2F;">Cryptoxide perf (SHA2 &#x2F; Blake2)</a>
+            </h1>
+            
+    <div class="post-meta">
+        <span class="post-date">2021.01.17
+                </span>
+
+        <span class="post-author"></span>
+
+        
+
+    
+    :: {<a href="https://vincenthz.github.io/categories/cryptography/">cryptography</a>} 
+
+            
+    ::
+    #<a href="https://vincenthz.github.io/tags/cryptography/">cryptography</a>
+        
+    #<a href="https://vincenthz.github.io/tags/performance/">performance</a>
+        
+    #<a href="https://vincenthz.github.io/tags/benchmark/">benchmark</a>
+        
+    
+            
+        
+    </div>
+
+            
+    
+</header><p>Related to some engine rewrite and SSE, AVX, AVX2 cpu optimisation I did last
+year on <a href="https://github.com/typed-io/cryptoxide/">cryptoxide</a> :</p>
+<ul>
+<li><a href="https://github.com/typed-io/cryptoxide/pull/8">SHA2 optimisation</a></li>
+<li><a href="https://github.com/typed-io/cryptoxide/pull/9">Blake2 optimisation</a></li>
+</ul>
+<span id="continue-reading"></span><h2 id="history-of-cryptoxide">History of cryptoxide<a class="zola-anchor" href="#history-of-cryptoxide" aria-label="Anchor link for: history-of-cryptoxide">§</a>
+</h2>
+<p>Cryptoxide is a fork of the initial <a href="https://github.com/DaGenix/rust-crypto">rust-crypto</a>
+one-stop cryptography package that went unmaintained.</p>
+<p>In 2018, we needed a pure rust version to construct rust-wasm based
+web-applications when this use case was in its infancy; rust-crypto was an
+interesting starting point, as all the algorithms were written in pure rust,
+and it was also easier to construct something than the exploded version which
+would have required lots more time to port.</p>
+<p>Many other cryptographic packages are now wasm friendly also.</p>
+<h2 id="benchmarks-setup">Benchmarks setup<a class="zola-anchor" href="#benchmarks-setup" aria-label="Anchor link for: benchmarks-setup">§</a>
+</h2>
+<ul>
+<li>cpu: 3.6 GHz 8-Core Intel Core i9 (I9-9900K)</li>
+<li>rust compiler: stable 1.49</li>
+<li>cryptoxide: 0.3.0</li>
+<li>rust-crypto: blake2 0.9.1, sha2 0.9.1</li>
+<li>ring: 0.16.19</li>
+</ul>
+<p>The benchmark code itself consist of benchmarking few time the main costly
+part of each algorithm over a 10 megabytes array and taking the average of
+the run. It's possible that the number reported could be buggy, but it should
+be consistently buggy, so here we're more interested by the relative values
+than the absolute values.</p>
+<p>This benchmark is only looking at the function I was interested about also, thus
+only compare Sha256, Sha512, Blake2b and Blake2s.</p>
+<p>Finally benchmarks should always be taken with a grain of salt, as different
+cpu and environment can lead to different results.</p>
+<p>To play with the benchmark on your own machine, have a look at <a href="https://github.com/vincenthz/rcc">rcc</a></p>
+<h2 id="raw-numbers">Raw numbers<a class="zola-anchor" href="#raw-numbers" aria-label="Anchor link for: raw-numbers">§</a>
+</h2>
+<p>Let's start with the raw number in release mode;
+This show the average (lower better) with standard deviation (the lower, the better for reliability of benchmark),
+and the speed of processing (higher better):</p>
+<p>Using the default target_cpu:</p>
+<table><thead><tr><th>Algorithm</th><th>Crate</th><th>Avg(ms)</th><th>Std Dev(ms)</th><th>Speed(mb/s)</th></tr></thead><tbody>
+<tr><td>blake2b</td><td>cryptoxide</td><td>10.18</td><td>0.174</td><td>981</td></tr>
+<tr><td>blake2b</td><td>blake2</td><td>10.28</td><td>0.260</td><td>972</td></tr>
+<tr><td>blake2s</td><td>cryptoxide</td><td>15.97</td><td>0.264</td><td>625</td></tr>
+<tr><td>blake2s</td><td>blake2</td><td>17.07</td><td>0.150</td><td>585</td></tr>
+<tr><td>sha256</td><td>cryptoxide</td><td>30.51</td><td>0.220</td><td>327</td></tr>
+<tr><td>sha256</td><td>sha2</td><td>35.66</td><td>0.277</td><td>280</td></tr>
+<tr><td>sha256</td><td>ring</td><td>19.17</td><td>0.293</td><td>521</td></tr>
+<tr><td>sha512</td><td>cryptoxide</td><td>20.86</td><td>0.319</td><td>479</td></tr>
+<tr><td>sha512</td><td>sha2</td><td>21.10</td><td>0.422</td><td>473</td></tr>
+<tr><td>sha512</td><td>ring</td><td>13.29</td><td>0.296</td><td>752</td></tr>
+</tbody></table>
+<p>Using the native target_cpu <code>target_cpu=native</code>:</p>
+<table><thead><tr><th>Algorithm</th><th>Crate</th><th>Avg(ms)</th><th>Std Dev(ms)</th><th>Speed(mb/s)</th></tr></thead><tbody>
+<tr><td>blake2b</td><td>cryptoxide</td><td>6.72</td><td>0.229</td><td>1486</td></tr>
+<tr><td>blake2b</td><td>blake2</td><td>9.95</td><td>0.388</td><td>1004</td></tr>
+<tr><td>blake2s</td><td>cryptoxide</td><td>11.27</td><td>0.232</td><td>886</td></tr>
+<tr><td>blake2s</td><td>blake2</td><td>17.23</td><td>0.136</td><td>580</td></tr>
+<tr><td>sha256</td><td>cryptoxide</td><td>20.71</td><td>0.243</td><td>482</td></tr>
+<tr><td>sha256</td><td>sha2</td><td>28.31</td><td>0.365</td><td>353</td></tr>
+<tr><td>sha256</td><td>ring</td><td>19.74</td><td>0.283</td><td>506</td></tr>
+<tr><td>sha512</td><td>cryptoxide</td><td>17.13</td><td>0.184</td><td>583</td></tr>
+<tr><td>sha512</td><td>sha2</td><td>17.50</td><td>0.339</td><td>571</td></tr>
+<tr><td>sha512</td><td>ring</td><td>13.17</td><td>0.133</td><td>759</td></tr>
+</tbody></table>
+<h2 id="in-graphs">In Graphs<a class="zola-anchor" href="#in-graphs" aria-label="Anchor link for: in-graphs">§</a>
+</h2>
+<p>Putting in graphical form, comparing the default and native runs:</p>
+
+
+<script type="text/javascript">
+    window.onload = function () {
+	    
+	renderMyChart(chartContainer1, [{"type":"column","dataPoints":[{"label":"sha2","y":280},{"label":"cryptoxide","y":327},{"label":"ring","y":585},{"label":"sha2 (nat)","y":353},{"label":"cryptoxide (nat)","y":482},{"label":"ring (nat)","y":506}]}]);
+	    
+	renderMyChart(chartContainer2, [{"type":"column","dataPoints":[{"label":"sha2","y":473},{"label":"cryptoxide","y":479},{"label":"ring","y":752},{"label":"sha2 (nat)","y":571},{"label":"cryptoxide (nat)","y":583},{"label":"ring (nat)","y":759}]}]);
+	    
+	renderMyChart(chartContainer3, [{"type":"column","dataPoints":[{"label":"blake2","y":972},{"label":"cryptoxide","y":981},{"label":"blake2 (nat)","y":1004},{"label":"cryptoxide (nat)","y":1486}]}]);
+	    
+	renderMyChart(chartContainer4, [{"type":"column","dataPoints":[{"label":"blake2","y":585},{"label":"cryptoxide","y":625},{"label":"blake2 (nat)","y":580},{"label":"cryptoxide (nat)","y":886}]}]);
+	    
+    function renderMyChart(theDIVid, myData) {
+        var chart = new CanvasJS.Chart(theDIVid, {
+            data: myData
+        });
+        chart.render();
+    }
+    }
+</script>
+
+
+<h2 id="sha256">Sha256<a class="zola-anchor" href="#sha256" aria-label="Anchor link for: sha256">§</a>
+</h2>
+<div id="chartContainer1" style="width: 90%; height: 300px"></div>
+<h2 id="sha512">SHA512<a class="zola-anchor" href="#sha512" aria-label="Anchor link for: sha512">§</a>
+</h2>
+<div id="chartContainer2" style="width: 90%; height: 300px"></div>
+<h2 id="blake2b">BLAKE2B<a class="zola-anchor" href="#blake2b" aria-label="Anchor link for: blake2b">§</a>
+</h2>
+<div id="chartContainer3" style="width: 90%; height: 300px"></div>
+<h2 id="blake2s">BLAKE2S<a class="zola-anchor" href="#blake2s" aria-label="Anchor link for: blake2s">§</a>
+</h2>
+<div id="chartContainer4" style="width: 90%; height: 300px"></div>
+<h2 id="conclusion">Conclusion<a class="zola-anchor" href="#conclusion" aria-label="Anchor link for: conclusion">§</a>
+</h2>
+<p>Ring is the uncontested winner in term of performance (and probably safety);
+Most or all algorithms are implemented in assembly and using the best level
+of optimisation all the time; which explains default and native being
+virtually identical.</p>
+<p>Related to Sha256 algorithm, with native optimisation cryptoxide reach very close
+to the very optimised ring implementation and have a noticeable difference with
+the pervasive sha2 crate.</p>
+<p>Related to Sha512 algorithm, there's no significant difference between cryptoxide and sha2,
+which is not particularly surprising considering that I didn't take time to write
+an SIMD optimised version of Sha512 in cryptoxide.</p>
+<p>Both SHA256 and SHA512 algorithms are only partially optimisable with SIMD.</p>
+<p>Related to Blake2b and Blake2s algorithm, while at the default level
+performance is mostly equivalent, the true difference happens at the AVX/AVX2
+level, where cryptoxide manage a massive boost compared to blake2b. This is enabled
+by the really nice design of <a href="https://www.blake2.net/">BLAKE2</a>.</p>
+<p>With time permitting, the next step is to add more SIMD optimisation with different
+algorithms and as new architecture achieved tier1 and wide support in rust,
+hopefully getting other type of SIMD optimisations.</p>
+
+
+        
+    
+
+        
+        
+    </article></div>
+    <div class="pagination">
+        <div class="pagination__buttons">
+            </div>
+    </div>
+<footer class="footer">
+                    <div class="footer__inner"><div class="copyright copyright--user">copyright (C) 2015-2022 Vincent Hanquez</div>
+    <script type="text/javascript" src="https://vincenthz.github.io/assets/js/main.js"></script>
+</div>
+                    
+
+                </footer></div>
+    </body>
+</html>

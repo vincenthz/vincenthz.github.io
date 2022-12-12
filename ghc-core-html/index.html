@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <title>ghc core with style - Vincent Hanquez</title>
+    
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"><meta name="description" content="Vincent Hanquez&#x27;s adventures ghc core with style "/><meta name="keywords" content="programming, ghc, core, html, css, javascript" />
+    <meta property="og:title" content="Typed Chronicles -&nbsp;ghc core with style" />
+    <meta property="og:type" content="website"/><meta property="og:url" content="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;ghc-core-html&#x2F;"/><meta property="og:description" content="Vincent Hanquez&#x27;s adventures"/>
+    <link rel="preload" href="https://vincenthz.github.io/assets/fonts/FiraCode-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" href="https://vincenthz.github.io/assets/fonts/FiraCode-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://vincenthz.github.io/style.css?h=f8c7bc50801cb0dd9da65fd930c01ca7fb7efd801345957f21cba38c367faec8">
+    <link rel="stylesheet" href=" https://vincenthz.github.io/color/orange.css?h=aee32970acd19d5cf88d42505796de4e31aa73fc58a07e61aa2f57fae305de50">
+    
+<link rel="alternate" type="application/atom+xml" title="Typed Chronicles RSS" href="https://vincenthz.github.io/atom.xml"></head>
+    <body>
+        <div class="container">
+<header class="header">
+    <div class="header__inner">
+        <div class="header__logo">
+            <a href="&#x2F;">
+    <div class="logo">
+        Typed Chronicles
+    </div>
+</a>
+        </div>
+        <div class="menu-trigger">menu</div>
+    </div>
+    
+    <nav class="menu">
+        <ul class="menu__inner menu__inner--desktop">
+            
+            
+                    <li>
+                        <a href="
+    
+        https://vincenthz.github.io/about
+    
+">about</a>
+                    </li>
+                
+            </ul>
+
+        <ul class="menu__inner menu__inner--mobile">
+            
+        <li>
+            <a href="
+    
+        https://vincenthz.github.io/about
+    
+">about</a>
+        </li>
+        </ul>
+    </nav>
+
+    </header>
+<div class="content"><article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;ghc-core-html&#x2F;">ghc core with style</a>
+            </h1>
+            
+    <div class="post-meta">
+        <span class="post-date">2013.04.22
+                </span>
+
+        <span class="post-author"></span>
+
+        
+
+    
+    :: {<a href="https://vincenthz.github.io/categories/programming/">programming</a>} 
+
+            
+    ::
+    #<a href="https://vincenthz.github.io/tags/ghc/">ghc</a>
+        
+    #<a href="https://vincenthz.github.io/tags/core/">core</a>
+        
+    #<a href="https://vincenthz.github.io/tags/html/">html</a>
+        
+    #<a href="https://vincenthz.github.io/tags/css/">css</a>
+        
+    #<a href="https://vincenthz.github.io/tags/javascript/">javascript</a>
+        
+    
+            
+        
+    </div>
+
+            
+    
+</header><p>After reading one too many time ghc core's output,
+i've been itching to have a more interactive output.</p>
+<span id="continue-reading"></span>
+<p>ghc-core-html is the result of scratching my itch, and i
+think it could be useful in general to anyone. It creates
+a html output similar to what ghc-core does in a terminal,
+but with also the following benefits:</p>
+<ul>
+<li>Symbols index at the beginning of the file</li>
+<li>Clickable symbols.</li>
+<li>Some hover popup: extra informations displayed on symbol.</li>
+<li>Foldable structures: hide what you don't need.</li>
+<li>Core output is (coarsely) parsed, not regex matched: better extensibility.</li>
+</ul>
+<p>An example is worth thousand words:
+<a href="http://tab.snarc.org/misc/ghc-core-html-example1.html">Example 1</a></p>
+<p>It's really simple to use, and very similar to the well known ghc-core:</p>
+<pre style="background-color:#191919;color:#ffffff;"><code><span>&gt; ghc-core-html Program.Hs &gt; program.html
+</span><span>&gt; $browser program.html
+</span></code></pre>
+<p>There's lots of other things that can be added,
+and style and javascript can easily be improved.
+Pull requests gladly accepted at: <a href="http://github.com/vincenthz/ghc-core-html">github repository</a></p>
+
+
+        
+    
+
+        
+        
+    </article></div>
+    <div class="pagination">
+        <div class="pagination__buttons">
+            </div>
+    </div>
+<footer class="footer">
+                    <div class="footer__inner"><div class="copyright copyright--user">copyright (C) 2015-2022 Vincent Hanquez</div>
+    <script type="text/javascript" src="https://vincenthz.github.io/assets/js/main.js"></script>
+</div>
+                    
+
+                </footer></div>
+    </body>
+</html>

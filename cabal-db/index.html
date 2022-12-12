@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <title>cabal-db : simple tool for cabal database queries - Vincent Hanquez</title>
+    
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"><meta name="description" content="Vincent Hanquez&#x27;s adventures cabal-db : simple tool for cabal database queries "/><meta name="keywords" content="programming, cabal, cabal-db, graph, API, library, dependencies, dot" />
+    <meta property="og:title" content="Typed Chronicles -&nbsp;cabal-db : simple tool for cabal database queries" />
+    <meta property="og:type" content="website"/><meta property="og:url" content="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;cabal-db&#x2F;"/><meta property="og:description" content="Vincent Hanquez&#x27;s adventures"/>
+    <link rel="preload" href="https://vincenthz.github.io/assets/fonts/FiraCode-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" href="https://vincenthz.github.io/assets/fonts/FiraCode-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://vincenthz.github.io/style.css?h=f8c7bc50801cb0dd9da65fd930c01ca7fb7efd801345957f21cba38c367faec8">
+    <link rel="stylesheet" href=" https://vincenthz.github.io/color/orange.css?h=aee32970acd19d5cf88d42505796de4e31aa73fc58a07e61aa2f57fae305de50">
+    
+<link rel="alternate" type="application/atom+xml" title="Typed Chronicles RSS" href="https://vincenthz.github.io/atom.xml"></head>
+    <body>
+        <div class="container">
+<header class="header">
+    <div class="header__inner">
+        <div class="header__logo">
+            <a href="&#x2F;">
+    <div class="logo">
+        Typed Chronicles
+    </div>
+</a>
+        </div>
+        <div class="menu-trigger">menu</div>
+    </div>
+    
+    <nav class="menu">
+        <ul class="menu__inner menu__inner--desktop">
+            
+            
+                    <li>
+                        <a href="
+    
+        https://vincenthz.github.io/about
+    
+">about</a>
+                    </li>
+                
+            </ul>
+
+        <ul class="menu__inner menu__inner--mobile">
+            
+        <li>
+            <a href="
+    
+        https://vincenthz.github.io/about
+    
+">about</a>
+        </li>
+        </ul>
+    </nav>
+
+    </header>
+<div class="content"><article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;cabal-db&#x2F;">cabal-db : simple tool for cabal database queries</a>
+            </h1>
+            
+    <div class="post-meta">
+        <span class="post-date">2013.03.13
+                </span>
+
+        <span class="post-author"></span>
+
+        
+
+    
+    :: {<a href="https://vincenthz.github.io/categories/programming/">programming</a>} 
+
+            
+    ::
+    #<a href="https://vincenthz.github.io/tags/cabal/">cabal</a>
+        
+    #<a href="https://vincenthz.github.io/tags/cabal-db/">cabal-db</a>
+        
+    #<a href="https://vincenthz.github.io/tags/graph/">graph</a>
+        
+    #<a href="https://vincenthz.github.io/tags/api/">API</a>
+        
+    #<a href="https://vincenthz.github.io/tags/library/">library</a>
+        
+    #<a href="https://vincenthz.github.io/tags/dependencies/">dependencies</a>
+        
+    #<a href="https://vincenthz.github.io/tags/dot/">dot</a>
+        
+    
+            
+        
+    </div>
+
+            
+    
+</header><p>Following previous experiment with Cabal library and querying the
+state of the hackage world <a href="http://tab.snarc.org/posts/haskell/2013-03-03-playing-with-cabal-lib.html">here</a>,
+I've extended and wrapped the tool into a cabal package.</p>
+<span id="continue-reading"></span><h1 id="a-simple-tool-for-cabal-database-query">A simple tool for cabal database query<a class="zola-anchor" href="#a-simple-tool-for-cabal-database-query" aria-label="Anchor link for: a-simple-tool-for-cabal-database-query">§</a>
+</h1>
+<ul>
+<li><a href="http://hackage.haskell.org/package/cabal-db">hackage</a></li>
+<li><a href="http://github.com/vincenthz/cabal-db/">github</a></li>
+</ul>
+<p>In addition to the graph feature, i've add and added some
+others commands that i consolidated from some misc scripts:</p>
+<ul>
+<li>diff: run the diff command between two different versions of a package.</li>
+<li>revdeps: print all reverse dependencies of a package.</li>
+<li>info: print all available versions of a package and some misc information.</li>
+<li>search-author: search all the database for match in the author field.</li>
+<li>search-maintainer: search all the database for match in the maintainer field.</li>
+</ul>
+<p>The revdeps feature of cabal-db can be also found in a web friendly yesod app with the
+very useful <a href="http://packdeps.haskellers.com/">packdeps</a>
+or using the source from <a href="https://github.com/snoyberg/packdeps">Michael Snoyman's packdeps repository</a></p>
+<p>The diff feature of cabal-db can be found using a gitweb frontend on <a href="http://hdiff.luite.com/">hdiff</a></p>
+<h2 id="dependency-graph">Dependency Graph<a class="zola-anchor" href="#dependency-graph" aria-label="Anchor link for: dependency-graph">§</a>
+</h2>
+<p>After my previous <a href="http://tab.snarc.org/posts/haskell/2013-03-03-playing-with-cabal-lib.html">experiment</a> to
+display graph, i've added some nice improvements to make it even more useful.</p>
+<ul>
+<li>color: red for the packages queried, and green for the package in the platform. Easier to see
+how &quot;far&quot; you are from just the platform packages.</li>
+<li>hiding packages from the output: useful to hide pervasive packages like base or bytestring,
+that doesn't necessarily add information to your graph (e.g. every one depends on base)</li>
+</ul>
+<p>Running on a single package (cryptohash):</p>
+<pre style="background-color:#191919;color:#ffffff;"><code><span>    $ cabal-db graph --hide base --hide bytestring cryptohash
+</span><span>    ...
+</span></code></pre>
+<p><img src="/pictures/posts/2013-03-03-graph-cryptohash.png" alt="cryptohash deps rendered by dot" /></p>
+<p>With this i can produce the graph of all the package i maintain with a single line:</p>
+<pre style="background-color:#191919;color:#ffffff;"><code><span>    $ cabal-db graph --hide base --hide bytestring $(cabal-db search-maintainer Hanquez | xargs)
+</span><span>    ...
+</span></code></pre>
+<p><a href="http://tab.snarc.org/pictures/posts/2013-03-03-graph-all.png">all my pkgs rendered by dot</a></p>
+<h2 id="diff">Diff<a class="zola-anchor" href="#diff" aria-label="Anchor link for: diff">§</a>
+</h2>
+<p>Running diff between hit 0.4.2 and hit 0.4.3:</p>
+<pre style="background-color:#191919;color:#ffffff;"><code><span>$ cabal-db diff hit 0.4.2 0.4.3
+</span><span>diff -Naur hit-0.4.2/Data/Git/Storage/FileWriter.hs hit-0.4.3/Data/Git/Storage/FileWriter.hs
+</span><span>--- hit-0.4.2/Data/Git/Storage/FileWriter.hs    2013-03-12 11:08:25.453936222 +0000
+</span><span>+++ hit-0.4.3/Data/Git/Storage/FileWriter.hs    2013-03-12 11:08:25.963936224 +0000
+</span><span>@@ -20,6 +20,14 @@
+</span><span> 
+</span><span> defaultCompression = 6
+</span><span> 
+</span><span>+-- this is a copy of modifyIORef&#39; found in base 4.6 (ghc 7.6),
+</span><span>+-- for older version of base.
+</span><span>+modifyIORefStrict :: IORef a -&gt; (a -&gt; a) -&gt; IO ()
+</span><span>+modifyIORefStrict ref f = do
+</span><span>+    x &lt;- readIORef ref
+</span><span>+    let x&#39; = f x
+</span><span>+    x&#39; `seq` writeIORef ref x&#39;
+</span><span>+
+</span><span> data FileWriter = FileWriter
+</span><span>         { writerHandle  :: Handle
+</span><span>         , writerDeflate :: Deflate
+</span><span>@@ -42,7 +50,7 @@
+</span><span> postDeflate handle = maybe (return ()) (B.hPut handle)
+</span><span> 
+</span><span> fileWriterOutput (FileWriter { writerHandle = handle, writerDigest = digest, writerDeflate = deflate }) bs = do
+</span><span>-        modifyIORef&#39; digest (\ctx -&gt; SHA1.update ctx bs)
+</span><span>+        modifyIORefStrict digest (\ctx -&gt; SHA1.update ctx bs)
+</span><span>         (&gt;&gt;= postDeflate handle) =&lt;&lt; feedDeflate deflate bs
+</span><span> 
+</span><span> fileWriterClose (FileWriter { writerHandle = handle, writerDeflate = deflate }) =
+</span><span>diff -Naur hit-0.4.2/hit.cabal hit-0.4.3/hit.cabal
+</span><span>--- hit-0.4.2/hit.cabal 2013-03-12 11:08:25.460602889 +0000
+</span><span>+++ hit-0.4.3/hit.cabal 2013-03-12 11:08:25.973936225 +0000
+</span><span>@@ -1,5 +1,5 @@
+</span><span> Name:                hit
+</span><span>-Version:             0.4.2
+</span><span>+Version:             0.4.3
+</span><span> Synopsis:            Git operations in haskell
+</span><span> Description:
+</span></code></pre>
+<h2 id="revdeps">Revdeps<a class="zola-anchor" href="#revdeps" aria-label="Anchor link for: revdeps">§</a>
+</h2>
+<p>Or running revdeps on tls:</p>
+<pre style="background-color:#191919;color:#ffffff;"><code><span>$ cabal-db revdeps tls
+</span><span>yesod-platform: tls (==1.1.2)
+</span><span>warp-tls: tls (&gt;=1.1)
+</span><span>tls-extra: tls (&gt;=1.1.0 &amp;&amp; &lt;1.2.0)
+</span><span>tls-debug: tls (&gt;=1.1 &amp;&amp; &lt;1.2 &amp;&amp; &gt;=1.1 &amp;&amp; &lt;1.2 &amp;&amp; &gt;=1.1 &amp;&amp; &lt;1.2 &amp;&amp; &gt;=1.1 &amp;&amp; &lt;1.2)
+</span><span>pontarius-xmpp: tls (&gt;=1.0.0)
+</span><span>network-conduit-tls: tls (&gt;=0.9)
+</span><span>network-api-support: tls (&gt;=0.9)
+</span><span>kevin: tls (==1.1.*)
+</span><span>imm: tls (-any)
+</span><span>http-proxy: tls (&gt;=0.9 &amp;&amp; &lt;0.10)
+</span><span>http-enumerator: tls (&gt;=0.9 &amp;&amp; &lt;0.10)
+</span><span>http-conduit-downloader: tls (-any)
+</span><span>http-conduit-browser: tls (-any)
+</span><span>http-conduit: tls (&gt;=1.1.0)
+</span><span>ez-couch: tls (-any)
+</span><span>dropbox-sdk: tls (==0.9.*)
+</span><span>connection: tls (&gt;=1.0)
+</span><span>azure-service-api: tls (&gt;=1.0 &amp;&amp; &lt;1.1)
+</span></code></pre>
+
+
+        
+    
+
+        
+        
+    </article></div>
+    <div class="pagination">
+        <div class="pagination__buttons">
+            </div>
+    </div>
+<footer class="footer">
+                    <div class="footer__inner"><div class="copyright copyright--user">copyright (C) 2015-2022 Vincent Hanquez</div>
+    <script type="text/javascript" src="https://vincenthz.github.io/assets/js/main.js"></script>
+</div>
+                    
+
+                </footer></div>
+    </body>
+</html>

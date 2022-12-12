@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <title>Ouroboros Verifiable Random Function - Vincent Hanquez</title>
+    
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"><meta name="description" content="Vincent Hanquez&#x27;s adventures Ouroboros Verifiable Random Function "/><meta name="keywords" content="cryptography, cryptography, blockchain, VRF, benchmarks" />
+    <meta property="og:title" content="Typed Chronicles -&nbsp;Ouroboros Verifiable Random Function" />
+    <meta property="og:type" content="website"/><meta property="og:url" content="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;ouroboros-vrf-explanation&#x2F;"/><meta property="og:description" content="Vincent Hanquez&#x27;s adventures"/>
+    <link rel="preload" href="https://vincenthz.github.io/assets/fonts/FiraCode-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" href="https://vincenthz.github.io/assets/fonts/FiraCode-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://vincenthz.github.io/style.css?h=f8c7bc50801cb0dd9da65fd930c01ca7fb7efd801345957f21cba38c367faec8">
+    <link rel="stylesheet" href=" https://vincenthz.github.io/color/orange.css?h=aee32970acd19d5cf88d42505796de4e31aa73fc58a07e61aa2f57fae305de50">
+    
+<link rel="alternate" type="application/atom+xml" title="Typed Chronicles RSS" href="https://vincenthz.github.io/atom.xml">
+  
+
+  <link rel="stylesheet" href="https://vincenthz.github.io/assets/katex/katex.min.css">
+
+  <script defer type="text/javascript" src="https://vincenthz.github.io/assets/katex/katex.min.js"></script>
+  <script defer type="text/javascript" src="https://vincenthz.github.io/assets/katex/mathtex-script-type.min.js"></script>
+
+  <script defer src="https://vincenthz.github.io/assets/katex/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+				delimiters: [
+					{left: '$$', right: '$$', display: true},
+					{left: '$', right: '$', display: false},
+					{left: '\\(', right: '\\)', display: false},
+					{left: '\\[', right: '\\]', display: true}
+				]
+			});"></script>
+
+
+  </head>
+    <body>
+        <div class="container">
+<header class="header">
+    <div class="header__inner">
+        <div class="header__logo">
+            <a href="&#x2F;">
+    <div class="logo">
+        Typed Chronicles
+    </div>
+</a>
+        </div>
+        <div class="menu-trigger">menu</div>
+    </div>
+    
+    <nav class="menu">
+        <ul class="menu__inner menu__inner--desktop">
+            
+            
+                    <li>
+                        <a href="
+    
+        https://vincenthz.github.io/about
+    
+">about</a>
+                    </li>
+                
+            </ul>
+
+        <ul class="menu__inner menu__inner--mobile">
+            
+        <li>
+            <a href="
+    
+        https://vincenthz.github.io/about
+    
+">about</a>
+        </li>
+        </ul>
+    </nav>
+
+    </header>
+<div class="content"><article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;ouroboros-vrf-explanation&#x2F;">Ouroboros Verifiable Random Function</a>
+            </h1>
+            
+    <div class="post-meta">
+        <span class="post-date">2020.01.26
+                </span>
+
+        <span class="post-author"></span>
+
+        
+
+    
+    :: {<a href="https://vincenthz.github.io/categories/cryptography/">cryptography</a>} 
+
+            
+    ::
+    #<a href="https://vincenthz.github.io/tags/cryptography/">cryptography</a>
+        
+    #<a href="https://vincenthz.github.io/tags/blockchain/">blockchain</a>
+        
+    #<a href="https://vincenthz.github.io/tags/vrf/">VRF</a>
+        
+    #<a href="https://vincenthz.github.io/tags/benchmarks/">benchmarks</a>
+        
+    
+            
+        
+    </div>
+
+            
+    
+</header><p>Verifiable Random Function (VRF) are one of the key cryptographic primitive for
+<a href="https://eprint.iacr.org/2017/573.pdf">Ouroboros Praos</a>, that allows to participate
+in the block creation lottery. Let's dig in the detail of the tech</p>
+<span id="continue-reading"></span><h1 id="what-is-a-vrf">What is a VRF<a class="zola-anchor" href="#what-is-a-vrf" aria-label="Anchor link for: what-is-a-vrf">§</a>
+</h1>
+<p>VRF can be thought as the asymmetric key equivalent to keyed cryptographic hash.
+In a nutshell, it uniquely allows the secret key owner to make a output for a given seed value
+and anyone with the public key can verify that it was generated honestly from the right seed.</p>
+<p>It's easy to see the similarily with a Message Authentication Code (MAC) construction, except
+adding that the capability to generate and verify for different part of the key.</p>
+<p>So, the VRF is mathematically defined as such:</p>
+<ul>
+<li>\( \tt{Output} \in \lbrace 0,1 \rbrace^{vrf} , \tt{Seed} \in \lbrace 0,1 \rbrace^* \)</li>
+<li>\( \tt{generate} : SecretKey \to \lbrace 0,1 \rbrace^* \to \lbrace 0,1 \rbrace^{vrf} \)</li>
+<li>\( \tt{verify} : PublicKey \to \lbrace 0,1 \rbrace^* \to \lbrace 0,1 \rbrace^{vrf} \to \lbrace True,False \rbrace \)</li>
+</ul>
+<p>You can see the similarity compared to the MAC construction:</p>
+<ul>
+<li>\( \tt{generate} : MacKey \to \lbrace 0,1 \rbrace^* \to \lbrace 0,1 \rbrace^{mac} \)</li>
+<li>\( \tt{verify} : MacKey \to \lbrace 0,1 \rbrace^* \to \lbrace 0,1 \rbrace^{mac} \to \lbrace True,False \rbrace \)</li>
+</ul>
+<p>There's plenty of online resources for more thorough and formal explanations of VRFs, and the ouroboros specific use:</p>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Verifiable_random_function">Wikipedia</a></li>
+<li><a href="https://people.csail.mit.edu/silvio/Selected%20Scientific%20Papers/Pseudo%20Randomness/Verifiable_Random_Functions.pdf">Verifiable Random Functions 1999 - PDF</a></li>
+<li><a href="https://eprint.iacr.org/2017/573.pdf">Ouroboros Praos - PDF</a></li>
+</ul>
+<h1 id="how-is-it-used">How is it used ?<a class="zola-anchor" href="#how-is-it-used" aria-label="Anchor link for: how-is-it-used">§</a>
+</h1>
+<p>Each slot will be individually evaluated by each owner of stake in secret.
+When succesfully evaluated, it gives the authorisation on a per slot basis
+to generate a header.</p>
+<p>Given the VRF output, we can map it to a range where the minimum of this range represent
+0% of stake, and the maximum of the range represent 100% of stake:</p>
+<p>$$ number : \lbrace 0,1 \rbrace^{vrf} \to \mathbb{N} $$</p>
+<p>And we effectively evaluate this number to be under the owner threshold:</p>
+<p>$$ \lbrace 0,1 \rbrace^{vrf} \ as\  \mathbb{N} \lt \tt{StakeThreshold} $$ </p>
+<p>This realise the major proposition of proof of stake, given stake in the
+system, allow to speak a new block on the network proportional to the
+stake you have in the system.</p>
+<div class="mermaid ">
+graph TB
+    A[&quot;Generate(epoch_random ++ slot_number)&quot;]
+    A --&gt;|Output| B{&quot;compare stake&quot;}
+    B --&gt;|&lt; Threshold| D[&quot;allowed for this slot&quot;]
+    B --&gt;|&gt;= Threshold| E[&quot;not allowed for this slot&quot;]
+</div>
+<p>So for example, given a 25% stake holder, with a number domain mapped to 8 bits
+(0..255), the threshold is 64, the schedule given to this secret key will be:</p>
+<table><thead><tr><th>Slot number</th><th>VRF Output (decimal)</th><th>Authorisation</th></tr></thead><tbody>
+<tr><td>1</td><td>0</td><td>✅</td></tr>
+<tr><td>2</td><td>124</td><td>❌</td></tr>
+<tr><td>3</td><td>180</td><td>❌</td></tr>
+<tr><td>4</td><td>65</td><td>❌</td></tr>
+<tr><td>5</td><td>80</td><td>❌</td></tr>
+<tr><td>6</td><td>63</td><td>✅</td></tr>
+<tr><td>...</td><td>...</td><td>...</td></tr>
+</tbody></table>
+<p>Every authorisation, give the ability for this stake holder to broadcast a
+block to the network. It doesn't force the stake holder to create this block,
+nor that it means that the stake holder is uniquely able to broadcast for
+this slot either.</p>
+<h1 id="benchmark">Benchmark<a class="zola-anchor" href="#benchmark" aria-label="Anchor link for: benchmark">§</a>
+</h1>
+<p>The actual implementation is using 2HashDH-NIZK, as described in the ouroboros paper.
+The curve choice for the discrete log was narrowed down to curve25519, as it allow
+a secure implementation and is also blazingly fast:</p>
+<p>On x86-64:</p>
+<table><thead><tr><th>Curve</th><th>Function</th><th>Speed</th></tr></thead><tbody>
+<tr><td>Curve25519</td><td>generate</td><td>83 µs</td></tr>
+<tr><td>NIST-P256R1</td><td>generate</td><td>211 µs</td></tr>
+<tr><td>Curve25519</td><td>verify</td><td>103 µs</td></tr>
+<tr><td>NIST-P256R1</td><td>verify</td><td>227 µs</td></tr>
+</tbody></table>
+<p>On Aarch64:</p>
+<table><thead><tr><th>Curve</th><th>Function</th><th>Speed</th></tr></thead><tbody>
+<tr><td>Curve25519</td><td>generate</td><td>1086 µs</td></tr>
+<tr><td>NIST-P256R1</td><td>generate</td><td>1685 µs</td></tr>
+<tr><td>Curve25519</td><td>verify</td><td>1411 µs</td></tr>
+<tr><td>NIST-P256R1</td><td>verify</td><td>1529 µs</td></tr>
+</tbody></table>
+<p>Note: The Curve25519 implementation is using curve25519-dalek and is all in
+rust, while the NIST-P256R1 is using haskell, and bindings to OpenSSL; The
+aarch64 implementation of curve25519-dalek is using normal operation, and
+probably could go faster with some low level optimisation.</p>
+<p>It might sounds insignifiant to optimise at the hundreds of µs scale, but
+given an epoch of 100000 slots, this means the evaluation budget for the
+whole epoch schedule between Curve25519 to P256, move from 8.3s to 21s on x64,
+and 108s to 168s on aarch64.</p>
+<p>Also the verification is done everytime that there's a network block received,
+so it's important to reduce the cost of those operation.</p>
+<p>Last but not least, the pure rust implementation allow seamless production
+ready compilation to webassembly, which allow to run in the context of a
+browser / javascript.</p>
+
+
+        
+    
+
+        
+        
+    </article></div>
+    <div class="pagination">
+        <div class="pagination__buttons">
+            </div>
+    </div>
+<footer class="footer">
+                    <div class="footer__inner"><div class="copyright copyright--user">copyright (C) 2015-2022 Vincent Hanquez</div>
+    <script type="text/javascript" src="https://vincenthz.github.io/assets/js/main.js"></script>
+</div>
+                    
+
+                </footer></div>
+    </body>
+</html>

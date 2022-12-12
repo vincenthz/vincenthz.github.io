@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <title>Downloading safely - Vincent Hanquez</title>
+    
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"><meta name="description" content="Vincent Hanquez&#x27;s adventures Downloading safely "/><meta name="keywords" content="security, security, download, digest, tls" />
+    <meta property="og:title" content="Typed Chronicles -&nbsp;Downloading safely" />
+    <meta property="og:type" content="website"/><meta property="og:url" content="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;downloading-safely&#x2F;"/><meta property="og:description" content="Vincent Hanquez&#x27;s adventures"/>
+    <link rel="preload" href="https://vincenthz.github.io/assets/fonts/FiraCode-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" href="https://vincenthz.github.io/assets/fonts/FiraCode-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://vincenthz.github.io/style.css?h=f8c7bc50801cb0dd9da65fd930c01ca7fb7efd801345957f21cba38c367faec8">
+    <link rel="stylesheet" href=" https://vincenthz.github.io/color/orange.css?h=aee32970acd19d5cf88d42505796de4e31aa73fc58a07e61aa2f57fae305de50">
+    
+<link rel="alternate" type="application/atom+xml" title="Typed Chronicles RSS" href="https://vincenthz.github.io/atom.xml"></head>
+    <body>
+        <div class="container">
+<header class="header">
+    <div class="header__inner">
+        <div class="header__logo">
+            <a href="&#x2F;">
+    <div class="logo">
+        Typed Chronicles
+    </div>
+</a>
+        </div>
+        <div class="menu-trigger">menu</div>
+    </div>
+    
+    <nav class="menu">
+        <ul class="menu__inner menu__inner--desktop">
+            
+            
+                    <li>
+                        <a href="
+    
+        https://vincenthz.github.io/about
+    
+">about</a>
+                    </li>
+                
+            </ul>
+
+        <ul class="menu__inner menu__inner--mobile">
+            
+        <li>
+            <a href="
+    
+        https://vincenthz.github.io/about
+    
+">about</a>
+        </li>
+        </ul>
+    </nav>
+
+    </header>
+<div class="content"><article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;downloading-safely&#x2F;">Downloading safely</a>
+            </h1>
+            
+    <div class="post-meta">
+        <span class="post-date">2015.05.30
+                </span>
+
+        <span class="post-author"></span>
+
+        
+
+    
+    :: {<a href="https://vincenthz.github.io/categories/security/">security</a>} 
+
+            
+    ::
+    #<a href="https://vincenthz.github.io/tags/security/">security</a>
+        
+    #<a href="https://vincenthz.github.io/tags/download/">download</a>
+        
+    #<a href="https://vincenthz.github.io/tags/digest/">digest</a>
+        
+    #<a href="https://vincenthz.github.io/tags/tls/">tls</a>
+        
+    
+            
+        
+    </div>
+
+            
+    
+</header><p>All too often, things are downloaded without safety from hosts and mirrors.
+Here's a practical guide to know where you stand and improve the situation.</p>
+<span id="continue-reading"></span>
+<p>I've seen countless example of script, Docker file, etc, that
+will do something akin to:</p>
+<pre data-lang="{.shell}" style="background-color:#191919;color:#ffffff;" class="language-{.shell} "><code class="language-{.shell}" data-lang="{.shell}"><span>wget http://my-url/package (or curl)
+</span><span>install package
+</span></code></pre>
+<p>For people that don't understand unix like shell script, that download a
+package on a HTTP server using a plain text connection, then try to install it.</p>
+<p>It's very likely that if you have some piece of automated machinery or a script,
+you want this, to download a very specific data (for example a specific version of a compiler).</p>
+<h2 id="what-can-possibly-go-wrong">What can possibly go wrong ?<a class="zola-anchor" href="#what-can-possibly-go-wrong" aria-label="Anchor link for: what-can-possibly-go-wrong">§</a>
+</h2>
+<p>Pretty much everything:</p>
+<ul>
+<li>Your query could have been intercepted and modified: you don't know which server you're talking to.</li>
+<li>The data could have tempered on the destination (for example, adding a malware in a .tar.gz)</li>
+<li>An unauthorized person could have modified the data (e.g. someone manage to do a release but its not the </li>
+</ul>
+<h2 id="can-t-i-just-use-a-secure-transport-and-be-done">Can't I just use a secure transport and be done ?<a class="zola-anchor" href="#can-t-i-just-use-a-secure-transport-and-be-done" aria-label="Anchor link for: can-t-i-just-use-a-secure-transport-and-be-done">§</a>
+</h2>
+<p>This is a good idea, but secure transport only secure the transport part.</p>
+<p>A secure transport make sure you know that what you are sending and receiving
+data comes from and go to a specific server without fear of eavedropping and
+meddling.</p>
+<p>But it doesn't gives you any guarantees that the data has not been changed on the server,
+e.g. the server was compromised and the package you're downloading has been tempered.</p>
+<h2 id="signature-to-the-rescue">Signature to the rescue !<a class="zola-anchor" href="#signature-to-the-rescue" aria-label="Anchor link for: signature-to-the-rescue">§</a>
+</h2>
+<p>Usually using GPG signatures, one can make sure that the data has been released
+by the correct person/team. For example, the developers in the team release
+a software signing with their personal keys.</p>
+<p>Now, we can detect that data has been released by a specific person (or team),
+which prevent the data being tempered by third party.</p>
+<p>But still not enough: You still rely on something you don't have any control
+for your security; the gpg key could have been compromised, or the people
+owning the key could have been compromised.</p>
+<h2 id="knowing-what-to-expect">Knowing what to expect<a class="zola-anchor" href="#knowing-what-to-expect" aria-label="Anchor link for: knowing-what-to-expect">§</a>
+</h2>
+<p>A simple technique to represent an arbitrary sized piece of data into a finite
+fingerprint is based on digest supported by a <a href="https://en.wikipedia.org/wiki/Cryptographic_hash_function">cryptographic hash function</a>.</p>
+<p>More specifically we're looking for those 2 properties in the algorithm generating the digest in this case:</p>
+<blockquote>
+<p>it is infeasible to modify a message without changing the hash.
+it is infeasible to find two different messages with the same hash.</p>
+</blockquote>
+<p>By embedding a digest of what you expect to download in your script, 
+you know that no one can modify it without you knowing about it on the
+other side.</p>
+<p>Which means that the security of the transport doesn't matters anymore,
+nor that the security of GPG keys of some people (or group), to determine
+that you have downloaded what you expect.</p>
+<p>It doesn't make anything secure by itself, but it allow you to vet what you
+install, for example by looking at the source, or sandboxing the app, to see what it does,
+in a restricted context. Then you only (or your organisation) become in charge
+of rubber-stamping this specific version with a digest.</p>
+<h2 id="finalizing">Finalizing<a class="zola-anchor" href="#finalizing" aria-label="Anchor link for: finalizing">§</a>
+</h2>
+<p>To conclude, hashing is one of the most powerful and simple technique
+to make sure the data has not changed and it is the exact same thing
+you expect.</p>
+<p>Here a short table on the risks related to transport and validation method used:</p>
+<table><thead><tr><th>Validation Method</th><th>Transport</th><th>MITM</th><th>Tempering</th><th>Author Validated</th></tr></thead><tbody>
+<tr><td>None</td><td>Plain</td><td>Unprotected</td><td>Possible</td><td>No</td></tr>
+<tr><td>None</td><td>Secure</td><td>Protected</td><td>Possible</td><td>No</td></tr>
+<tr><td>GPG</td><td>Plain</td><td>Protected</td><td>Possible</td><td>Yes</td></tr>
+<tr><td>GPG</td><td>Secure</td><td>Protected</td><td>Possible</td><td>Yes</td></tr>
+<tr><td>Hash</td><td>Plain</td><td>Protected</td><td>Impossible</td><td>No</td></tr>
+<tr><td>Hash</td><td>Secure</td><td>Protected</td><td>Impossible</td><td>No</td></tr>
+<tr><td>Hash+GPG</td><td>Plain</td><td>Protected</td><td>Impossible</td><td>Yes</td></tr>
+<tr><td>Hash+GPG</td><td>Secure</td><td>Protected</td><td>Impossible</td><td>Yes</td></tr>
+</tbody></table>
+<p>Note: it's assumed that the algorithm used for each specific purpose are perfect regarding to the properties they provide.</p>
+
+
+        
+    
+
+        
+        
+    </article></div>
+    <div class="pagination">
+        <div class="pagination__buttons">
+            </div>
+    </div>
+<footer class="footer">
+                    <div class="footer__inner"><div class="copyright copyright--user">copyright (C) 2015-2022 Vincent Hanquez</div>
+    <script type="text/javascript" src="https://vincenthz.github.io/assets/js/main.js"></script>
+</div>
+                    
+
+                </footer></div>
+    </body>
+</html>

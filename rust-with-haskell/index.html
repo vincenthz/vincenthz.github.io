@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <title>Combining Rust and Haskell - Vincent Hanquez</title>
+    
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"><meta name="description" content="Vincent Hanquez&#x27;s adventures Combining Rust and Haskell "/><meta name="keywords" content="programming, haskell, rust" />
+    <meta property="og:title" content="Typed Chronicles -&nbsp;Combining Rust and Haskell" />
+    <meta property="og:type" content="website"/><meta property="og:url" content="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;rust-with-haskell&#x2F;"/><meta property="og:description" content="Vincent Hanquez&#x27;s adventures"/>
+    <link rel="preload" href="https://vincenthz.github.io/assets/fonts/FiraCode-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" href="https://vincenthz.github.io/assets/fonts/FiraCode-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://vincenthz.github.io/style.css?h=f8c7bc50801cb0dd9da65fd930c01ca7fb7efd801345957f21cba38c367faec8">
+    <link rel="stylesheet" href=" https://vincenthz.github.io/color/orange.css?h=aee32970acd19d5cf88d42505796de4e31aa73fc58a07e61aa2f57fae305de50">
+    
+<link rel="alternate" type="application/atom+xml" title="Typed Chronicles RSS" href="https://vincenthz.github.io/atom.xml"></head>
+    <body>
+        <div class="container">
+<header class="header">
+    <div class="header__inner">
+        <div class="header__logo">
+            <a href="&#x2F;">
+    <div class="logo">
+        Typed Chronicles
+    </div>
+</a>
+        </div>
+        <div class="menu-trigger">menu</div>
+    </div>
+    
+    <nav class="menu">
+        <ul class="menu__inner menu__inner--desktop">
+            
+            
+                    <li>
+                        <a href="
+    
+        https://vincenthz.github.io/about
+    
+">about</a>
+                    </li>
+                
+            </ul>
+
+        <ul class="menu__inner menu__inner--mobile">
+            
+        <li>
+            <a href="
+    
+        https://vincenthz.github.io/about
+    
+">about</a>
+        </li>
+        </ul>
+    </nav>
+
+    </header>
+<div class="content"><article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;rust-with-haskell&#x2F;">Combining Rust and Haskell</a>
+            </h1>
+            
+    <div class="post-meta">
+        <span class="post-date">2015.09.28
+                </span>
+
+        <span class="post-author"></span>
+
+        
+
+    
+    :: {<a href="https://vincenthz.github.io/categories/programming/">programming</a>} 
+
+            
+    ::
+    #<a href="https://vincenthz.github.io/tags/haskell/">haskell</a>
+        
+    #<a href="https://vincenthz.github.io/tags/rust/">rust</a>
+        
+    
+            
+        
+    </div>
+
+            
+    
+</header><p>Rust is a pretty interesting language, in the area of C++ but more modern /
+better. The stated goal of rust are: &quot;a systems programming language focused
+on three goals: safety, speed, and concurrency&quot;. Combining Rust with Haskell
+could create some interesting use cases, and could replace use of C in some
+projects while providing a more high level and safer approach where Haskell
+cannot be used.</p>
+<span id="continue-reading"></span>
+<p>One of my reason for doing this, is that writing code targetting low-level
+features is simpler in Rust than Haskell. For example, writing inline assembly
+or some lowlevel OS routines. Also the performance of Rust is quite close to
+C++, and I could see this being useful in certain case where Haskell is not as
+optimised.</p>
+<p>In this short tutorial, let's call Rust functions from Haskell.</p>
+<h2 id="the-rust-library">The Rust library<a class="zola-anchor" href="#the-rust-library" aria-label="Anchor link for: the-rust-library">§</a>
+</h2>
+<p>First we start with an hypothetical rust library that takes a value, print to
+console and return a value.</p>
+<p>Our entry point in Rust is a simple rust_hello, in a <code>src/lib.rs</code> file:</p>
+<pre data-lang="rust" style="background-color:#191919;color:#ffffff;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#cccccc;">#[no_mangle]
+</span><span style="color:#80d500;">pub </span><span>extern </span><span style="color:#80d500;">fn </span><span>rust_hello</span><span style="color:#cccccc;">(</span><span style="font-style:italic;color:#8aa6c1;">v</span><span style="color:#cccccc;">: </span><span style="color:#80d500;">i32</span><span style="color:#cccccc;">) -&gt; </span><span style="color:#80d500;">i32 </span><span style="color:#cccccc;">{
+</span><span style="color:#cccccc;">    println!(</span><span style="color:#ffd700;">&quot;Hello Rust World: </span><span style="color:#66ccff;">{}</span><span style="color:#ffd700;">&quot;</span><span style="color:#cccccc;">, v);
+</span><span style="color:#cccccc;">    v</span><span>+</span><span style="color:#eddd5a;">1
+</span><span style="color:#cccccc;">} 
+</span></code></pre>
+<p>One of the key thing here is the presence of the <code>no_mangle</code> pragma, that allow
+exporting the name of the function as-is in the library we're going to generate.</p>
+<p>Rust uses Cargo to package library and executable, akin to Cabal for haskell.
+We can create the <code>Cargo.toml</code> for our test library:</p>
+<pre data-lang="ini" style="background-color:#191919;color:#ffffff;" class="language-ini "><code class="language-ini" data-lang="ini"><span style="color:#80d500;">[package]
+</span><span style="font-style:italic;color:#8aa6c1;">name </span><span>= </span><span style="color:#ffd700;">&quot;hello&quot;
+</span><span style="font-style:italic;color:#8aa6c1;">version </span><span>= </span><span style="color:#ffd700;">&quot;0.0.1&quot;
+</span><span style="font-style:italic;color:#8aa6c1;">authors </span><span>=</span><span style="color:#cccccc;"> [</span><span style="color:#ffd700;">&quot;Vincent Hanquez &lt;vincent@snarc.org&gt;&quot;</span><span style="color:#cccccc;">]
+</span><span style="color:#cccccc;">
+</span><span style="color:#80d500;">[lib]
+</span><span style="font-style:italic;color:#8aa6c1;">name </span><span>= </span><span style="color:#ffd700;">&quot;hello&quot;
+</span><span style="font-style:italic;color:#8aa6c1;">crate-type </span><span>=</span><span style="color:#cccccc;"> [</span><span style="color:#ffd700;">&quot;staticlib&quot;</span><span style="color:#cccccc;">]
+</span></code></pre>
+<p>The only special trick is that we ask Cargo to build a static library in the
+crate-type section, instead of the default rust lib (.rlib).</p>
+<p>Haskell doesn't know other calling / linking convention like C++ (yet) or
+Rust, which is why we need to go through those hoops.</p>
+<p>We can now build with our Rust library with:</p>
+<pre style="background-color:#191919;color:#ffffff;"><code><span>cargo build
+</span></code></pre>
+<p>If everything goes according to plan, you should end up with a <code>target</code> directory where you can find the <code>libhello.a</code> library.</p>
+<h2 id="the-haskell-part">The haskell part<a class="zola-anchor" href="#the-haskell-part" aria-label="Anchor link for: the-haskell-part">§</a>
+</h2>
+<p>Now the haskell part is really easy, as this point there's no much difference
+than linking with some static C library; first we create a <code>src/Main.hs</code>:</p>
+<pre data-lang="haskell" style="background-color:#191919;color:#ffffff;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#cccccc;">{-# </span><span>LANGUAGE</span><span style="color:#cccccc;"> ForeignFunctionInterface #-}
+</span><span>module </span><span style="color:#8aa6c1;">Main </span><span>where
+</span><span style="color:#cccccc;">
+</span><span>import </span><span style="color:#8aa6c1;">Foreign.C.Types
+</span><span style="color:#cccccc;">
+</span><span style="color:#cccccc;">foreign </span><span>import</span><span style="color:#cccccc;"> ccall unsafe &quot;rust_hello&quot; rust_hello :: </span><span style="color:#8aa6c1;">CInt</span><span style="color:#cccccc;"> -&gt; </span><span style="color:#8aa6c1;">IO CInt
+</span><span style="color:#cccccc;">
+</span><span style="color:#cccccc;">main </span><span>= </span><span style="color:#80d500;">do
+</span><span style="color:#cccccc;">    v </span><span>&lt;-</span><span style="color:#cccccc;"> rust_hello </span><span style="color:#eddd5a;">1234
+</span><span style="color:#cccccc;">    putStrLn (</span><span style="color:#ffd700;">&quot;Rust returned: &quot; </span><span>++</span><span style="color:#cccccc;"> show v)
+</span></code></pre>
+<p>Nothing special if you've done some C bindings yourself, otherwise I suggest
+having a look at the <a href="https://en.wikibooks.org/wiki/Haskell/FFI">FFI</a> article.</p>
+<p>we can try directly linking with ghc:</p>
+<pre style="background-color:#191919;color:#ffffff;"><code><span>ghc -o hello-rust --make src/Main.hs -lhello -Ltarget/debug
+</span></code></pre>
+<p>and running:</p>
+<pre data-lang="sh" style="background-color:#191919;color:#ffffff;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#cccccc;">$ ./hello-rust
+</span><span style="color:#cccccc;">Hello Rust World: 1234
+</span><span style="color:#cccccc;">Rust returned: 1235
+</span></code></pre>
+<p>That achieve the goal above. From there we can polish things and add this to a cabal file:</p>
+<pre style="background-color:#191919;color:#ffffff;"><code><span>name:                hello-rust
+</span><span>version:             0.1.0.0
+</span><span>license:             PublicDomain
+</span><span>license-file:        LICENSE
+</span><span>author:              Vincent Hanquez
+</span><span>maintainer:          vincent@snarc.org
+</span><span>category:            System
+</span><span>build-type:          Simple
+</span><span>cabal-version:       &gt;=1.10
+</span><span>extra-source-files:  src/lib.rs
+</span><span>
+</span><span>executable hello-rust
+</span><span>  main-is:             Main.hs
+</span><span>  other-extensions:    ForeignFunctionInterface
+</span><span>  build-depends:       base &gt;=4.8
+</span><span>  hs-source-dirs:      src
+</span><span>  default-language:    Haskell2010
+</span><span>  extra-lib-dirs:      target/release, target/debug
+</span><span>  extra-libraries:     hello
+</span></code></pre>
+<p>Note: The <code>target/release</code> path is to support building with the <code>-release</code> flag of cargo build.
+by listing the <code>target/release</code> and then <code>target/debug</code>, it should allow you to pickup
+the release library in preference to the debug library. It can also create some confusion,
+and print a warning on my system when one of the directory is missing.</p>
+<p>The missing step is either adding some pre-build rules to cabal <code>Setup.hs</code> to run cargo build, or
+some more elaborate build system, both which are left as exercice to the interested reader.</p>
+<h2 id="where-this-could-go">Where this could go<a class="zola-anchor" href="#where-this-could-go" aria-label="Anchor link for: where-this-could-go">§</a>
+</h2>
+<p>Going forward, this could lead to having another language from Haskell to
+target that is not as lowlevel as C, but offer stellar performance and more
+high level constructs (than C) without imposing any other runtime system. This
+is interesting where you need to complete some tasks that Haskell is not quite
+ready to handle (yet).</p>
+<p>For example, a non exhaustive list:</p>
+<ul>
+<li>Writing cryptographic bindings in <code>rust&amp;asm</code> instead of <code>C&amp;asm</code></li>
+<li>Heavily Vector-Optimised routines</li>
+<li>Operating system routines (e.g. page table handling) for a hybrid and safer operating system kernel.</li>
+<li><a href="https://github.com/servo/servo">Servo</a> embedding</li>
+</ul>
+<p>Let me know in the comments anything else that might be of interests !</p>
+
+
+        
+    
+
+        
+        
+    </article></div>
+    <div class="pagination">
+        <div class="pagination__buttons">
+            </div>
+    </div>
+<footer class="footer">
+                    <div class="footer__inner"><div class="copyright copyright--user">copyright (C) 2015-2022 Vincent Hanquez</div>
+    <script type="text/javascript" src="https://vincenthz.github.io/assets/js/main.js"></script>
+</div>
+                    
+
+                </footer></div>
+    </body>
+</html>

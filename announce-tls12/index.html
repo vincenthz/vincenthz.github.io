@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <title>announcement: tls-1.2 is out - Vincent Hanquez</title>
+    
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"><meta name="description" content="Vincent Hanquez&#x27;s adventures announcement: tls-1.2 is out "/><meta name="keywords" content="programming, haskell, tls" />
+    <meta property="og:title" content="Typed Chronicles -&nbsp;announcement: tls-1.2 is out" />
+    <meta property="og:type" content="website"/><meta property="og:url" content="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;announce-tls12&#x2F;"/><meta property="og:description" content="Vincent Hanquez&#x27;s adventures"/>
+    <link rel="preload" href="https://vincenthz.github.io/assets/fonts/FiraCode-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" href="https://vincenthz.github.io/assets/fonts/FiraCode-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://vincenthz.github.io/style.css?h=f8c7bc50801cb0dd9da65fd930c01ca7fb7efd801345957f21cba38c367faec8">
+    <link rel="stylesheet" href=" https://vincenthz.github.io/color/orange.css?h=aee32970acd19d5cf88d42505796de4e31aa73fc58a07e61aa2f57fae305de50">
+    
+<link rel="alternate" type="application/atom+xml" title="Typed Chronicles RSS" href="https://vincenthz.github.io/atom.xml"></head>
+    <body>
+        <div class="container">
+<header class="header">
+    <div class="header__inner">
+        <div class="header__logo">
+            <a href="&#x2F;">
+    <div class="logo">
+        Typed Chronicles
+    </div>
+</a>
+        </div>
+        <div class="menu-trigger">menu</div>
+    </div>
+    
+    <nav class="menu">
+        <ul class="menu__inner menu__inner--desktop">
+            
+            
+                    <li>
+                        <a href="
+    
+        https://vincenthz.github.io/about
+    
+">about</a>
+                    </li>
+                
+            </ul>
+
+        <ul class="menu__inner menu__inner--mobile">
+            
+        <li>
+            <a href="
+    
+        https://vincenthz.github.io/about
+    
+">about</a>
+        </li>
+        </ul>
+    </nav>
+
+    </header>
+<div class="content"><article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;announce-tls12&#x2F;">announcement: tls-1.2 is out</a>
+            </h1>
+            
+    <div class="post-meta">
+        <span class="post-date">2014.02.14
+                </span>
+
+        <span class="post-author"></span>
+
+        
+
+    
+    :: {<a href="https://vincenthz.github.io/categories/programming/">programming</a>} 
+
+            
+    ::
+    #<a href="https://vincenthz.github.io/tags/haskell/">haskell</a>
+        
+    #<a href="https://vincenthz.github.io/tags/tls/">tls</a>
+        
+    
+            
+        
+    </div>
+
+            
+    
+</header><p>One year ago, I've started some big changes on the <a href="http://hackage.haskell.org/package/tls">tls</a> package.
+I've finally manage to wrap it up in something that people can use straight out of hackage.</p>
+<span id="continue-reading"></span><h2 id="state-improvements">State improvements<a class="zola-anchor" href="#state-improvements" aria-label="Anchor link for: state-improvements">§</a>
+</h2>
+<p>One major limitation of previous tls versions, was that you wouldn't be able to
+read and write data at the same time, since all the state was behind a big-lock
+single mvar. Now the state is separated between multiple smaller states with
+can be concurrently used:</p>
+<ul>
+<li>the RX state for receiving data.</li>
+<li>the TX state for sending data.</li>
+<li>the handshake state for creating new security parameters to replace RX/TX state when the handshake is finished</li>
+<li>Misc state for other values.</li>
+</ul>
+<p>For many protocols like HTTP, this was never an issue as the reading and
+writing are disjoints. But some others protocols that do intertwined read and
+write (AMQP, IMAP, SMTP, ..) were rightfully having difficulties to use tls.</p>
+<p>This provide a more scalable implementation, and optimise the structure changes
+to the minimum needed.</p>
+<h2 id="certificate-improvements">Certificate improvements<a class="zola-anchor" href="#certificate-improvements" aria-label="Anchor link for: certificate-improvements">§</a>
+</h2>
+<p>The second pharaonic change was a major rewrite of ASN.1, X509 and the handling
+of certificate. The support libraries are now splitted in more logical units, and
+provide all the necessary foundations for a much simplified handling of
+certificates.</p>
+<p>ASN.1 that was previously all in <a href="http://hackage.haskell.org/package/asn1-data">asn1-data</a> is splitted
+into <a href="http://hackage.haskell.org/package/asn1-types">asn1-types</a> for the high level ASN.1 Types,
+<a href="http://hackage.haskell.org/package/asn1-encoding">asn1-encoding</a> for BER and DER binary encoding support,
+and <a href="http://hackage.haskell.org/package/asn1-parse">asn1-parse</a> to
+help with parsing ASN.1 representation into high level types. Generally,
+the code is nicer and able to support more cases, and also more stress tested.</p>
+<p>Certificate <a href="http://hackage.haskell.org/package/certificate">certificate</a> is splitted too and is now deprecated in favor of:</p>
+<ul>
+<li><a href="http://hackage.haskell.org/package/x509">x509</a>: Contains all the format
+parser and writer for certificate, but also now support CRL. The code has
+been made more generic and better account certificate formats from the real
+world.</li>
+<li><a href="http://hackage.haskell.org/package/x509-store">x509-store</a>: Contains some
+routines to store and access certificates on disk; this is not very different
+than what was in <a href="http://hackage.haskell.org/package/certificate%22">certificate</a>.</li>
+<li><a href="http://hackage.haskell.org/package/x509-system">x509-system</a>: Contains all
+routines to access system certificates, mainly the trusted CA certificates
+supported. The code is not different from <a href="http://hackage.haskell.org/package/certificate%22">certificate</a>
+package, except there's now Windows supports for accessing the system
+certificate store.</li>
+<li><a href="http://hackage.haskell.org/package/x509-validation">x509-validation</a>: One of
+the main security aspect of the TLS stack, is certificate validation, which
+is a complicated and fiddly process. The main fiddly aspect is the many input
+variables that need to be considered, combined with errata and extensions.
+The reason to have it as a separate package it to make it easy to debug,
+while also isolating this very sensitive piece of code. The feature is
+much more configurable and tweakable.</li>
+</ul>
+<p>On the TLS side, previous version was leaving the whole validation process to a
+callback function. Now that we have a solid stack of validation and support for
+all main operating systems, tls now automatically provide the validation
+function enabled and with the appropriate security parameters by default.  Of
+course, It's still possible to change validation parameters, add some hooks and
+add a validation cache too.</p>
+<p>The validation cache is a way to take a fingerprint and get cached yes/no
+answer about whether the certificate is accepted. It's a generic lookup
+mechanism, so that it could work with any storage mechanism. The same mechanism
+can be overloaded to support Trust-on-first-use, and exceptions fingerprint
+list.</p>
+<p>Exceptions list a great way to use self-signed certificates without
+compromising on security; You have to do the validation process out-of-band to
+make sure the certificate is really the one, and then store a tuple of the name
+of the remote accessed associated with a fingerprint. The fingerprint is a
+simple hash of the certificate, whereas the name is really just a simple
+(hostname, service) tuple.</p>
+<h2 id="key-exchange-methods">Key exchange methods<a class="zola-anchor" href="#key-exchange-methods" aria-label="Anchor link for: key-exchange-methods">§</a>
+</h2>
+<p>Along with RSA signature, there's now DSA signature support for certificate.</p>
+<p>Previous versions only supported the old RSA key exchange methods. After a bit
+of refactoring, we now have DHE-RSA and DHE-DSS support. DHE is ephemereal
+Diffie Hellman, and provide <a href="http://en.wikipedia.org/wiki/Forward_secrecy">Forward Secrecy</a>.</p>
+<p>In the future, with this refactoring in place, ECDHE based key exchange methods
+and ECDSA signature will be very easy to add.</p>
+<h2 id="api-and-parameters-changes">API and parameters changes<a class="zola-anchor" href="#api-and-parameters-changes" aria-label="Anchor link for: api-and-parameters-changes">§</a>
+</h2>
+<p>The initialization parameters for a context is now splitted into multiples smaller structures:</p>
+<ul>
+<li>one for the supported parameters (versions, ciphers methods, compressions methods, ..)</li>
+<li>one for shared access structures (x509 validation cache, x509 CA store, session manager, certificate and keys)</li>
+<li>the client and server parameters are now 2 distinct structures. this is not anymore a common structure with a role part.</li>
+</ul>
+<p>All this change allow better separation of what parameters are for the client
+and the server, and should also make it easier to setup better default, and allow
+tweaking of the configuration to be more self contain. The aim is only to have
+to set your &quot;Shared&quot; structure, and for the remaining structures uses default.</p>
+<p><a href="http://hackage.haskell.org/package/tls-extra">tls-extra</a> has been merged in tls.</p>
+<h2 id="tls-protocol-versions">TLS Protocol Versions<a class="zola-anchor" href="#tls-protocol-versions" aria-label="Anchor link for: tls-protocol-versions">§</a>
+</h2>
+<p>Previous tls packages were not able to downgrade protocol version. This is now completely fixed, and
+by default tls will try to use the maximum supported version (by default, TLS 1.2)
+instead of the version specified by the user (by default, TLS 1.0).</p>
+<h2 id="client-use">Client use<a class="zola-anchor" href="#client-use" aria-label="Anchor link for: client-use">§</a>
+</h2>
+<p>For client connection, I recommend to use <a href="http://hackage.haskell.org/package/connection">connection</a>
+instead of tls directly.</p>
+<h2 id="closing-note">Closing note<a class="zola-anchor" href="#closing-note" aria-label="Anchor link for: closing-note">§</a>
+</h2>
+<p>And finally this is the extents of the modifications just in tls:</p>
+<pre style="background-color:#191919;color:#ffffff;"><code><span> 82 files changed, 5528 insertions(+), 4568 deletions(-)
+</span></code></pre>
+<p>Enjoy,</p>
+
+
+        
+    
+
+        
+        
+    </article></div>
+    <div class="pagination">
+        <div class="pagination__buttons">
+            </div>
+    </div>
+<footer class="footer">
+                    <div class="footer__inner"><div class="copyright copyright--user">copyright (C) 2015-2022 Vincent Hanquez</div>
+    <script type="text/javascript" src="https://vincenthz.github.io/assets/js/main.js"></script>
+</div>
+                    
+
+                </footer></div>
+    </body>
+</html>

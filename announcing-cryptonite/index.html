@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <title>Announcing: cryptonite - Vincent Hanquez</title>
+    
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"><meta name="description" content="Vincent Hanquez&#x27;s adventures Announcing: cryptonite "/><meta name="keywords" content="programming, crypto, haskell, crypto, cryptography" />
+    <meta property="og:title" content="Typed Chronicles -&nbsp;Announcing: cryptonite" />
+    <meta property="og:type" content="website"/><meta property="og:url" content="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;announcing-cryptonite&#x2F;"/><meta property="og:description" content="Vincent Hanquez&#x27;s adventures"/>
+    <link rel="preload" href="https://vincenthz.github.io/assets/fonts/FiraCode-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" href="https://vincenthz.github.io/assets/fonts/FiraCode-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://vincenthz.github.io/style.css?h=f8c7bc50801cb0dd9da65fd930c01ca7fb7efd801345957f21cba38c367faec8">
+    <link rel="stylesheet" href=" https://vincenthz.github.io/color/orange.css?h=aee32970acd19d5cf88d42505796de4e31aa73fc58a07e61aa2f57fae305de50">
+    
+<link rel="alternate" type="application/atom+xml" title="Typed Chronicles RSS" href="https://vincenthz.github.io/atom.xml"></head>
+    <body>
+        <div class="container">
+<header class="header">
+    <div class="header__inner">
+        <div class="header__logo">
+            <a href="&#x2F;">
+    <div class="logo">
+        Typed Chronicles
+    </div>
+</a>
+        </div>
+        <div class="menu-trigger">menu</div>
+    </div>
+    
+    <nav class="menu">
+        <ul class="menu__inner menu__inner--desktop">
+            
+            
+                    <li>
+                        <a href="
+    
+        https://vincenthz.github.io/about
+    
+">about</a>
+                    </li>
+                
+            </ul>
+
+        <ul class="menu__inner menu__inner--mobile">
+            
+        <li>
+            <a href="
+    
+        https://vincenthz.github.io/about
+    
+">about</a>
+        </li>
+        </ul>
+    </nav>
+
+    </header>
+<div class="content"><article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https:&#x2F;&#x2F;vincenthz.github.io&#x2F;announcing-cryptonite&#x2F;">Announcing: cryptonite</a>
+            </h1>
+            
+    <div class="post-meta">
+        <span class="post-date">2015.06.02
+                </span>
+
+        <span class="post-author"></span>
+
+        
+
+    
+    :: {<a href="https://vincenthz.github.io/categories/programming/">programming</a>,
+            <a href="https://vincenthz.github.io/categories/crypto/">crypto</a>} 
+
+            
+    ::
+    #<a href="https://vincenthz.github.io/tags/haskell/">haskell</a>
+        
+    #<a href="https://vincenthz.github.io/tags/crypto/">crypto</a>
+        
+    #<a href="https://vincenthz.github.io/tags/cryptography/">cryptography</a>
+        
+    
+            
+        
+    </div>
+
+            
+    
+</header><p>For the last 5 years, I've worked intermittently on cryptographic related packages for Haskell.
+Lately, I've consolidated it all in one single package. Announcing <a href="http://hackage.haskell.org/package/cryptonite">cryptonite</a></p>
+<span id="continue-reading"></span>
+<p>This new package merges the following packages:</p>
+<ul>
+<li><a href="http://hackage.haskell.org/package/cryptohash">cryptohash</a></li>
+<li><a href="http://hackage.haskell.org/package/cryptocipher">cryptocipher</a></li>
+<li><a href="http://hackage.haskell.org/package/crypto-random">crypto-random</a></li>
+<li><a href="http://hackage.haskell.org/package/crypto-pubkey-types">crypto-pubkey-types</a></li>
+<li><a href="http://hackage.haskell.org/package/crypto-pubkey">crypto-pubkey</a></li>
+<li><a href="http://hackage.haskell.org/package/crypto-numbers">crypto-numbers</a></li>
+<li><a href="http://hackage.haskell.org/package/crypto-cipher-types">crypto-cipher-types</a></li>
+<li><a href="http://hackage.haskell.org/package/crypto-cipher-tests">crypto-cipher-tests</a></li>
+<li><a href="http://hackage.haskell.org/package/crypto-cipher-benchmarks">crypto-cipher-benchmarks</a></li>
+<li><a href="http://hackage.haskell.org/package/cprng-aes">cprng-aes</a></li>
+<li><a href="http://hackage.haskell.org/package/cipher-rc4">cipher-rc4</a></li>
+<li><a href="http://hackage.haskell.org/package/cipher-des">cipher-des</a></li>
+<li><a href="http://hackage.haskell.org/package/cipher-camellia">cipher-camellia</a></li>
+<li><a href="http://hackage.haskell.org/package/cipher-blowfish">cipher-blowfish</a></li>
+<li><a href="http://hackage.haskell.org/package/cipher-aes">cipher-aes</a></li>
+<li><a href="http://hackage.haskell.org/package/afis">afis</a></li>
+</ul>
+<p>Also this package adds support for the following features:</p>
+<ul>
+<li><a href="http://cr.yp.to/chacha.html">ChaCha</a></li>
+<li><a href="http://cr.yp.to/mac.html">Poly1305</a></li>
+<li><a href="http://cr.yp.to/snuffle.html">Salsa</a></li>
+<li><a href="http://tools.ietf.org/html/rfc2898">PBKDF2</a></li>
+<li><a href="http://www.tarsnap.com/scrypt.html">Scrypt</a></li>
+<li><a href="http://cr.yp.to/ecdh.html">Curve25519</a></li>
+<li><a href="http://ed25519.cr.yp.to/papers.html">Ed25519</a></li>
+<li>A faster and more secure NIST P256 ECC support (through Google P256 implementation)</li>
+</ul>
+<h2 id="why-this-new-packaging-model">Why this new packaging model ?<a class="zola-anchor" href="#why-this-new-packaging-model" aria-label="Anchor link for: why-this-new-packaging-model">§</a>
+</h2>
+<p>This is mostly rooted in three reasons:</p>
+<ul>
+<li>Discoverability</li>
+<li>Cryptographic taxonomy</li>
+<li>Maintenance</li>
+</ul>
+<p>Discovering new packages in our current world of hackage is not easy.
+Unless you communicate heavily on new packages, there's a good chance that most
+people would not know about a new package, leading to re-implementation,
+duplicated features, and inconsistencies.</p>
+<p>Cryptography taxonomy is hard, and getting harder; cryptographic primitives
+are re-used creatively for making hash from cipher primitive, or random
+generator from cipher, or authentification code from galois field operations.
+This does create problems into where the code lives, how the code is tested,
+etc. </p>
+<p>Then, finally, if I have to choose a unique reason for doing this, it will be
+maintenance.  Maintenance of many cabal packages is costly in time: lower
+bounds, upper bounds, re-installation, compatibility modules, testing framework, benchmarking
+framework.</p>
+<p>My limited free time has been siphoned into doing unproductive cross packages
+tasks, for example:</p>
+<ul>
+<li>Upgrading bounds</li>
+<li>Sorting out ghc database of installed-packages when reinstalling packages for testing features</li>
+<li>Duplicating compatibility modules for supporting many compilers and library versions</li>
+<li>Maintaining meta data for many packages (e.g. LICENSE, CHANGELOG, README, .travis, .cabal)</li>
+<li>Tagging and releasing new versions</li>
+</ul>
+<p>Doing everything in one package, simplifies the building issues, gives a better
+ability to test features easily, makes a more consistent cryptographic
+solution, and minimizes meta data changes.</p>
+<h2 id="what-happens-to-other-crypto-packages">What happens to other crypto packages ?<a class="zola-anchor" href="#what-happens-to-other-crypto-packages" aria-label="Anchor link for: what-happens-to-other-crypto-packages">§</a>
+</h2>
+<p>Cryptonite should be better in almost every aspect: better features, better testing.
+So there are no real reasons to maintain any of the old packages anymore, so in
+the long run, I expect most of those packages to become deprecated. I encourage
+everyone to move to the new package.</p>
+<p>I'll try to answer any migration questions as they arise, but most of the migration
+should be straightforward in general.</p>
+<p>I'm committed to maintain cryptohash for now, as it is very widely used. I'll
+try to maintain the rest of the packages for now, but don't expect this to last
+for long.</p>
+<p>Otherwise, If some people are interested in keeping certain other pieces
+independent and maintained, come talk to me directly with motivated arguments.</p>
+<h2 id="contributing">Contributing<a class="zola-anchor" href="#contributing" aria-label="Anchor link for: contributing">§</a>
+</h2>
+<p>I hope this does bring contributions, and this becomes a more
+community-maintained package, and specially that cryptonite becomes the
+canonical place for anything cryptography related in Haskell.</p>
+<p>Main things to look out, for successful contributions:</p>
+<ul>
+<li>respect the coding style</li>
+<li>do not introduce dependencies</li>
+</ul>
+<p>Also you don't need to know every little thing in cryptography to help
+maintain and add feature in cryptonite.</p>
+<p>PS: I'm also looking forward to more cryptography related discussions
+about timing attacks, what source of random is truly random, etc. :-þ</p>
+
+
+        
+    
+
+        
+        
+    </article></div>
+    <div class="pagination">
+        <div class="pagination__buttons">
+            </div>
+    </div>
+<footer class="footer">
+                    <div class="footer__inner"><div class="copyright copyright--user">copyright (C) 2015-2022 Vincent Hanquez</div>
+    <script type="text/javascript" src="https://vincenthz.github.io/assets/js/main.js"></script>
+</div>
+                    
+
+                </footer></div>
+    </body>
+</html>
