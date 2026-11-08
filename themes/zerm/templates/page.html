@@ -1,22 +1,20 @@
-{% import "macros/head.html" as head -%}
-{% import "macros/toc.html" as toc -%}
 {% extends "index.html" -%}
 
 {%- block math -%}
   {% if page.extra.math %}
-  {{ head::katex() }}
+  {{ <head.katex /> }}
   {% endif %}
 {%- endblock math -%}
 
 {%- block diagrams -%}
   {% if page.extra.diagrams %}
-  {{ head::diagrams() }}
+  {{ <head.diagrams /> }}
   {% endif %}
 {%- endblock diagrams -%}
 
 {%- block graphs -%}
   {% if page.extra.graphs %}
-  {{ head::graphs() }}
+  {{ <head.graphs /> }}
   {% endif %}
 {%- endblock graphs -%}
 
@@ -32,12 +30,12 @@
             <h1 class="post-title">
                 <a href="{{ page.permalink  }}">{{ page.title }}</a>
             </h1>
-            {{ posts::meta(page=page, author=config.extra.show_author) }}
-            {{ posts::langs(page=page) }}
+            {{ <posts.meta page={page} author={config.extra.show_author} /> }}
+            {{ <posts.langs page={page} /> }}
 
             {%- block ToC -%}
                 {%- if page.extra.ToC or config.extra.ToC -%}
-                    {{ toc::toc(t=page.toc) }}
+                    {{ <toc t={page.toc} /> }}
                 {%- endif -%}
             {%- endblock ToC -%}
         </header>
@@ -46,7 +44,7 @@
 
         {{ page.content | safe }}
 
-        {{ comments::comments() }}
+        {{ <comments.comments /> }}
         {# TODO: Decide if any sort of commenting functionality is desired? #}
         {#%- include "snippets/comments.html"  -%#}
     </article>

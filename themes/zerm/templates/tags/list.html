@@ -6,7 +6,7 @@
     <ul>
         {%- for term in terms -%}
             <li class="tag-list">
-                <a href="{{ get_taxonomy_url(kind="tags", name=term.name) }}">#{{ term.name }}</a>
+                <a href="{{ get_taxonomy_url(kind="tags", term=term.name) }}">#{{ term.name }}</a>
                 ({{ term.pages | length }} post{{ term.pages | length | pluralize}})
             </li>
             {# End of pagination for-loop #}

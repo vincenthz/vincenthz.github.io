@@ -1,4 +1,4 @@
-{% macro section_meta(section, author) %}
+{% component posts.section_meta(section, author, @config) %}
     <div class="post-meta">
         <span class="post-date">
 
@@ -10,13 +10,13 @@
 
         <span class="post-author">
             {%- if author -%}
-                {{ utils::author(page=section) }}
+                {{ <utils.author page={section} /> }}
             {%- endif -%}
         </span>
     </div>
-{% endmacro section_meta %}
+{% endcomponent posts.section_meta %}
 
-{% macro langs(page) %}
+{% component posts.langs(page) %}
     {% if page.translations | length > 1 %}
     <div class="post-langs" style="opacity: .5;">
       <span>Translations: </span>{# TODO translate the span content too #}
@@ -25,9 +25,9 @@
       {% endfor %}
     </div>
     {% endif %}
-{% endmacro langs %}
+{% endcomponent posts.langs %}
 
-{% macro meta(page, author) %}
+{% component posts.meta(page, author, @config) %}
     <div class="post-meta">
         <span class="post-date">
             {%- if page.date -%}
@@ -43,58 +43,58 @@
 
         <span class="post-author">
             {%- if author -%}
-                {{ utils::author(page=page) }}
+                {{ <utils.author page={page} /> }}
             {%- endif -%}
         </span>
 
-        {{  posts::taxonomies(taxonomy=page.taxonomies,
-            disp_cat=config.extra.show_categories,
-            disp_tag=config.extra.show_tags) }}
+        {{ <posts.taxonomies taxonomy={page.taxonomies}
+            disp_cat={config.extra.show_categories}
+            disp_tag={config.extra.show_tags} /> }}
     </div>
-{% endmacro meta %}
+{% endcomponent posts.meta %}
 
-{% macro taxonomies(taxonomy, disp_cat, disp_tag) %}
+{% component posts.taxonomies(taxonomy, disp_cat, disp_tag) %}
 
     {% if disp_cat and disp_tag -%}
         {% if taxonomy.categories -%}
-            {{ posts::categories(categories=taxonomy.categories) }}
+            {{ <posts.categories categories={taxonomy.categories} /> }}
             {# end if-check for categories #}
         {%- endif -%}
 
         {% if taxonomy.tags -%}
-            {{ posts::tags(tags=taxonomy.tags) }}
+            {{ <posts.tags tags={taxonomy.tags} /> }}
             {# end if-check for tags #}
         {% endif -%}
     {% elif disp_cat -%}
         {% if taxonomy.categories-%}
-            {{ posts::categories(categories=taxonomy.categories) }}
+            {{ <posts.categories categories={taxonomy.categories} /> }}
             {# end if-check for categories #}
         {% endif -%}
     {% elif disp_tag -%}
         {% if taxonomy.tags -%}
-            {{ posts::tags(tags=taxonomy.tags) }}
+            {{ <posts.tags tags={taxonomy.tags} /> }}
             {# end if-check for tags #}
         {% endif -%}
         {# end if-check for BOTH disp bools #}
     {% endif -%}
-{% endmacro taxonomies %}
+{% endcomponent posts.taxonomies %}
 
-{% macro categories(categories) %}
+{% component posts.categories(categories) %}
     :: {
     {%- for cat in categories -%}
         {%- if loop.last -%}
-            <a href="{{ get_taxonomy_url(kind="categories", name=cat ) }}">{{ cat }}</a>
+            <a href="{{ get_taxonomy_url(kind="categories", term=cat) }}">{{ cat }}</a>
         {%- else -%}
-            <a href="{{ get_taxonomy_url(kind="categories", name=cat ) }}">{{ cat }}</a>,
+            <a href="{{ get_taxonomy_url(kind="categories", term=cat) }}">{{ cat }}</a>,
             {# end of if-check for whether last item or not #}
         {%- endif -%}
     {%- endfor -%}} {# <--- NOTE: OPEN CURLY BRACE #}
-{% endmacro categories %}
+{% endcomponent posts.categories %}
 
-{% macro tags(tags) %}
+{% component posts.tags(tags) %}
     ::
     {% for tag in tags -%}
-        #<a href="{{get_taxonomy_url(kind="tags", name=tag )}}">{{ tag }}</a>
+        #<a href="{{get_taxonomy_url(kind="tags", term=tag)}}">{{ tag }}</a>
         {# end of tags for-loop #}
     {% endfor -%}
-{% endmacro tags %}
+{% endcomponent posts.tags %}

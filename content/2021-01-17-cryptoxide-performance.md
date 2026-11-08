@@ -92,23 +92,23 @@ Using the native target_cpu `target_cpu=native`:
 
 Putting in graphical form, comparing the default and native runs:
 
-{{ canvasdata(path="content/2021-01-17-cryptoxide-performance.json") }}
+{{ <canvasdata path="content/2021-01-17-cryptoxide-performance.json" /> }}
 
 ## Sha256
 
-{{ canvas(id=1, width="90%", height="300px") }}
+{{ <canvas id={1} width="90%" height="300px" /> }}
 
 ## SHA512
 
-{{ canvas(id=2, width="90%", height="300px") }}
+{{ <canvas id={2} width="90%" height="300px" /> }}
 
 ## BLAKE2B
 
-{{ canvas(id=3, width="90%", height="300px") }}
+{{ <canvas id={3} width="90%" height="300px" /> }}
 
 ## BLAKE2S
 
-{{ canvas(id=4, width="90%", height="300px") }}
+{{ <canvas id={4} width="90%" height="300px" /> }}
 
 
 ## Conclusion

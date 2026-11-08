@@ -1,0 +1,5 @@
+{% component diagram(class: string = "") -%}
+<div class="mermaid {% if class %} {{class}} {% endif %}">
+{{ body | trim | escape_html }}
+</div>
+{%- endcomponent diagram %}

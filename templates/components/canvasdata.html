@@ -1,3 +1,4 @@
+{% component canvasdata(path: string) -%}
 {% set data = load_data(path=path, format="json") %}
 
 <script type="text/javascript">
@@ -13,5 +14,4 @@
     }
     }
 </script>
-
-
+{%- endcomponent canvasdata %}

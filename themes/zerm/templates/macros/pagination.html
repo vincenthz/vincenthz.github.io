@@ -1,7 +1,7 @@
-{% macro paginate() %}
+{% component pagination(@paginator = none) %}
     <div class="pagination">
         <div class="pagination__buttons">
-            {% if paginator.previous -%}
+            {% if paginator?.previous -%}
                 <span class="button previous">
                     <a href="{{ paginator.previous }}">
                         <span class="button__icon">←</span>
@@ -10,7 +10,7 @@
                 </span>
                 {# end of if-check for page.previous #}
             {%  endif -%}
-            {% if paginator.next -%}
+            {% if paginator?.next -%}
                 {# end of if-check for page.next #}
                 <span class="button next">
                     <a href="{{ paginator.next }}">
@@ -21,4 +21,4 @@
             {% endif-%}
         </div>
     </div>
-{% endmacro paginate %}
+{% endcomponent pagination %}

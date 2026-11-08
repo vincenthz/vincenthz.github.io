@@ -60,13 +60,13 @@ This realise the major proposition of proof of stake, given stake in the
 system, allow to speak a new block on the network proportional to the
 stake you have in the system.
 
-{% diagram() %}
+{% <diagram> %}
 graph TB
     A["Generate(epoch_random ++ slot_number)"]
     A -->|Output| B{"compare stake"}
     B -->|< Threshold| D["allowed for this slot"]
     B -->|>= Threshold| E["not allowed for this slot"]
-{% end %}
+{% </diagram> %}
 
 So for example, given a 25% stake holder, with a number domain mapped to 8 bits
 (0..255), the threshold is 64, the schedule given to this secret key will be:

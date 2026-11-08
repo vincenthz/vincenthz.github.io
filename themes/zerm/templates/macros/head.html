@@ -5,13 +5,13 @@
     - [ ] twitter
     - [ ] maybe google adsense
     -#}
-    
-{% macro fonts() %}
+
+{% component head.fonts() %}
     <link rel="preload" href="{{ get_url(path="/assets/fonts/FiraCode-Regular.woff2") }}" as="font" type="font/woff2" crossorigin="anonymous">
     <link rel="preload" href="{{ get_url(path="/assets/fonts/FiraCode-Bold.woff2") }}" as="font" type="font/woff2" crossorigin="anonymous">
-{% endmacro fonts %}
+{% endcomponent head.fonts %}
 
-{% macro styling() %}
+{% component head.styling(@config) %}
     <link rel="stylesheet" href="{{ get_url(path="style.css", cachebust=true) }}">
     {% if config.extra.theme_color != "orange" -%}
         {% set color = "color/" ~ config.extra.theme_color ~ ".css" -%}
@@ -22,32 +22,32 @@
     {%- if config.extra.custom_css is defined -%}
         <link rel="stylesheet" href="{{ get_url(path="custom.css", cachebust=true) }}">
     {% endif %}
-{% endmacro styling %}
+{% endcomponent head.styling %}
 
-{% macro favicon() %}
+{% component head.favicon(@config) %}
     {%- if config.extra.favicon is defined -%}
         <link rel="shortcut icon" href="{{ get_url(path=config.extra.favicon) }}" type="image/x-icon" />
     {%- endif -%}
-{% endmacro favicon %}
+{% endcomponent head.favicon %}
 
-{% macro rss() %}
+{% component head.rss(@config) %}
     {%- if config.generate_feeds -%}
         {%- for feed_filename in config.feed_filenames -%}
         <link rel="alternate" type={% if feed_filename == "atom.xml" %}"application/atom+xml"{% else %}"application/rss+xml"{% endif %} title="{{ config.title }} RSS" href="{{ get_url(path=feed_filename) }}">
         {%- endfor -%}
     {%- endif -%}
-{% endmacro rss %}
+{% endcomponent head.rss %}
 
-{% macro general_meta() %}
+{% component head.general_meta(@config, @page = none) %}
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-    {%- if page.title -%}
+    {%- if page?.title -%}
         <meta name="description" content="{{ config.description }} {{ page.title }} {{ page.description }}"/>
     {%- else -%}
         <meta name="description" content="{{ config.description }}"/>
     {%- endif -%}
 
-    {%- if page.taxonomies.tags or page.taxonomies.categories -%}
+    {%- if page?.taxonomies?.tags or page?.taxonomies?.categories -%}
         <meta name="keywords" content="
         {%- if page.taxonomies.categories -%}
             {%- for cat in page.taxonomies.categories -%}
@@ -64,9 +64,9 @@
         {%- endif -%}
         " />
     {%- endif -%}
-{% endmacro general_meta %}
+{% endcomponent head.general_meta %}
 
-{% macro katex() %}
+{% component head.katex(@config) %}
 {% if config.extra.enable_katex %}
   <link rel="stylesheet" href="{{ get_url(path="assets/katex/katex.min.css") }}">
 
@@ -83,21 +83,21 @@
 				]
 			});"></script>
 {% endif %}
-{% endmacro katek %}
+{% endcomponent head.katex %}
 
-{% macro diagrams() %}
+{% component head.diagrams(@config) %}
 {% if config.extra.enable_diagrams %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/8.8.4/mermaid.min.js"
         integrity="sha512-as1BF4+iHZ3BVO6LLDQ7zrbvTXM+c/1iZ1qII/c3c4L8Rn5tHLpFUtpaEtBNS92f+xGsCzsD7b62XP3XYap6oA=="
         crossorigin="anonymous"></script>
     <script>mermaid.initialize({ startOnLoad: true, theme: 'forest' });</script>
 {% endif %}
-{% endmacro diagrams %}
+{% endcomponent head.diagrams %}
 
-{% macro graphs() %}
+{% component head.graphs(@config) %}
 {% if config.extra.enable_graphs %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/canvasjs/1.7.0/canvasjs.min.js"
         integrity="sha512-FJ2OYvUIXUqCcPf1stu+oTBlhn54W0UisZB/TNrZaVMHHhYvLBV9jMbvJYtvDe5x/WVaoXZ6KB+Uqe5hT2vlyA=="
         crossorigin="anonymous"></script>
 {% endif %}
-{% endmacro graphs %}
+{% endcomponent head.graphs %}

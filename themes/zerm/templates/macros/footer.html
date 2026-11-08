@@ -1,4 +1,4 @@
-{% macro copyright() %}
+{% component footer.copyright(@config) %}
     {%- if config.extra.copyright -%}
         <div class="copyright copyright--user">{{ config.extra.copyright | safe }}</div>
     {%- else -%}
@@ -7,8 +7,8 @@
             <span>:: Theme made by <a href="https://github.com/ejmg">ejmg</a></span>
         </div>
     {%- endif -%}
-{% endmacro copyright %}
+{% endcomponent footer.copyright %}
 
-{% macro script() %}
+{% component footer.script() %}
     <script type="text/javascript" src="{{ get_url(path="assets/js/main.js") }}"></script>
-{% endmacro script %}
+{% endcomponent footer.script %}

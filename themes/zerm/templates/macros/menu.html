@@ -1,4 +1,4 @@
-{% macro menu() %}
+{% component menu(@config) %}
     <nav class="menu">
         <ul class="menu__inner menu__inner--desktop">
             {# 
@@ -8,12 +8,12 @@
             original implementation for now.
             #}
             {% if config.extra.show_menu_items is defined -%}
-                {% for menu_item in config.extra.main_menu | slice(end=config.extra.show_menu_items) -%}
+                {% for menu_item in config.extra.main_menu[:config.extra.show_menu_items] -%}
                     {# 
                     Original theme has sub-children checks on main-menu, not worrying about that here.
                     #}
                     <li>
-                        <a href="{{ menu::get_link(item=menu_item) }}">{{ menu_item.name }}</a>
+                        <a href="{{ <menu.get_link item={menu_item} /> }}">{{ menu_item.name }}</a>
                     </li>
                 {% endfor -%}
 
@@ -22,37 +22,37 @@
 
                 {%- if main_len > show_len -%}
                     <ul class="menu__sub-inner">
-                        <li class="menu__sub-inner-more-trigger">{{ config.extra.menu_more }} ▾</li>
+                        <li class="menu__sub-inner-more-trigger">{{ config.extra.menu_more | default(value="show more") }} ▾</li>
                         <ul class="menu__sub-inner-more hidden">
-                            {{ menu::items(menu=config.extra.main_menu | slice(start=config.extra.show_menu_items)) }}
+                            {{ <menu.items menu={config.extra.main_menu[config.extra.show_menu_items:]} /> }}
                         </ul>
                     </ul>
                 {%- endif -%}
                 {# Continues the original if-check at top of file for show_menu_items #}
             {% else -%}
-                {{ menu::items(menu=config.extra.main_menu) }}
+                {{ <menu.items menu={config.extra.main_menu} /> }}
             {%- endif -%}
         </ul>
 
         <ul class="menu__inner menu__inner--mobile">
-            {{ menu::items(menu=config.extra.main_menu) }}
+            {{ <menu.items menu={config.extra.main_menu} /> }}
         </ul>
     </nav>
-{% endmacro menu %}
+{% endcomponent menu %}
 
-{% macro items(menu) %}
+{% component menu.items(menu) %}
     {%- for menu_item in menu -%}
         {# skipping sub-child check #}
         <li>
-            <a href="{{ menu::get_link(item=menu_item) }}">{{ menu_item.name }}</a>
+            <a href="{{ <menu.get_link item={menu_item} /> }}">{{ menu_item.name }}</a>
         </li>
     {%- endfor-%}
-{% endmacro items %}
+{% endcomponent menu.items %}
 
-{% macro get_link(item) %}
+{% component menu.get_link(item) %}
     {% if item.external is defined and item.external == true %}
         {{ item.url }}
     {% else %}
         {{ get_url(path=item.url) }}
     {% endif %}
-{% endmacro get_link %}
+{% endcomponent menu.get_link %}

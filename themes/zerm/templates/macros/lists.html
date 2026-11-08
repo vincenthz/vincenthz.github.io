@@ -1,4 +1,4 @@
-{% macro list_pages() %}
+{% component lists.list_pages(@config, @paginator) %}
 <section class="posts">
     
     {%- for page in paginator.pages -%}
@@ -11,7 +11,7 @@
         </header>
         
         
-        {{ posts::meta(page=page, author=config.extra.show_author) }}
+        {{ <posts.meta page={page} author={config.extra.show_author} /> }}
         
         {#-                NOTE              -#}
         {#- --------------------------------  -#}
@@ -36,4 +36,4 @@
     {#- I don't put pagination here like Terminal does. I don't like how
     the buttons move with the size of post entries in the content div. -#}
 </section>
-{% endmacro list_pages %}
+{% endcomponent lists.list_pages %}

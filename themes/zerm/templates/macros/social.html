@@ -1,16 +1,19 @@
-{% macro og_preview() %}
-    <meta property="og:title" content="{{ social::og_title() }}" />
+{% component social.og_preview(@config, @current_url = none) %}
+    <meta property="og:title" content="{{ <social.og_title /> }}" />
     <meta property="og:type" content="website"/>
     {%- if current_url -%}
         <meta property="og:url" content="{{ current_url }}"/>
     {%- endif -%}
-    <meta property="og:description" content="{{ social::og_description() }}"/>
+    <meta property="og:description" content="{{ <social.og_description /> }}"/>
     {%- if config.extra.og_preview_img -%}
         <meta property="og:image" content="{{ get_url(path=config.extra.og_preview_img) }}"/>
     {%- endif -%}
-{% endmacro og_preview %}
+{% endcomponent social.og_preview %}
 
-{% macro og_description() %}
+{#- NOTE: before Zola 0.23 this tested `page.summary | string`, which never
+    evaluated truthy, so pages always fell through to the description. That
+    behaviour is kept as-is. -#}
+{% component social.og_description(@config, @section = none, @page = none) %}
     {%- if section -%}
         {%-  if section.description -%}
             {{ section.description }}
@@ -18,17 +21,15 @@
             {{ config.description }}
         {%- endif -%}
     {%- elif page -%}
-        {%- if page.summary | string -%}
-            {{ page.summary | striptags | truncate(length=200) }}
-        {%- elif page.description -%}
+        {%- if page.description -%}
             {{ page.description }}
         {%- else -%}
             {{ config.description }}
         {%- endif -%}
     {%- endif -%}
-{% endmacro og_description %}
+{% endcomponent social.og_description %}
 
-{% macro og_title() -%}
+{% component social.og_title(@config, @section = none, @page = none) -%}
     {{ config.title }} -&nbsp;
     {%- if section -%}
         {%- if section.title -%}
@@ -43,4 +44,4 @@
             {{ config.description }}
         {%- endif -%}
     {%- endif -%}
-{% endmacro og_title %}
+{% endcomponent social.og_title %}
