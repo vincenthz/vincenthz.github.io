@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <title>Listing licenses with cabal-db - Vincent Hanquez</title>
+    
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"><meta name="description" content="Vincent Hanquez&#39;s adventures Listing licenses with cabal-db "/><meta name="keywords" content="programming, cabal, license, cabal-db" />
+    <meta property="og:title" content="Typed Chronicles -&nbsp;Listing licenses with cabal-db" />
+    <meta property="og:type" content="website"/><meta property="og:url" content="https://vincenthz.github.io/cabal-db-license/"/><meta property="og:description" content="Vincent Hanquez&#39;s adventures"/>
+    <link rel="preload" href="https://vincenthz.github.io/assets/fonts/FiraCode-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" href="https://vincenthz.github.io/assets/fonts/FiraCode-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://vincenthz.github.io/style.css?h=97e262212a0704163528">
+    <link rel="stylesheet" href=" https://vincenthz.github.io/color/orange.css?h=a5a5d7faf9d4bc3e0b18">
+    
+<link rel="alternate" type="application/atom+xml" title="Typed Chronicles RSS" href="https://vincenthz.github.io/atom.xml"></head>
+    <body>
+        <div class="container">
+<header class="header">
+    <div class="header__inner">
+        <div class="header__logo">
+            <a href="/">
+    <div class="logo">
+        Typed Chronicles
+    </div>
+</a>
+        </div>
+        <div class="menu-trigger">menu</div>
+    </div>
+    
+    <nav class="menu">
+        <ul class="menu__inner menu__inner--desktop">
+            
+            
+                    <li>
+                        <a href="
+    
+        https://vincenthz.github.io/about
+    
+">about</a>
+                    </li>
+                
+            </ul>
+
+        <ul class="menu__inner menu__inner--mobile">
+            
+        <li>
+            <a href="
+    
+        https://vincenthz.github.io/about
+    
+">about</a>
+        </li>
+        </ul>
+    </nav>
+
+    </header>
+<div class="content"><article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https://vincenthz.github.io/cabal-db-license/">Listing licenses with cabal-db</a>
+            </h1>
+            
+    <div class="post-meta">
+        <span class="post-date">2014.03.29
+                </span>
+
+        <span class="post-author"></span>
+
+        
+
+    
+    :: {<a href="https://vincenthz.github.io/categories/programming/">programming</a>} 
+
+            
+    ::
+    #<a href="https://vincenthz.github.io/tags/cabal/">cabal</a>
+        
+    #<a href="https://vincenthz.github.io/tags/license/">license</a>
+        
+    #<a href="https://vincenthz.github.io/tags/cabal-db/">cabal-db</a>
+        
+    
+            
+        
+    </div>
+
+            
+    
+</header><p>Following discussions with fellow haskellers, regarding the need to be careful
+with adding packages that could depends on GPL or proprietary licenses, it
+turns out it's not easy to get your dependencies's licenses listed.</p>
+<span id="continue-reading"></span>
+<p>It would be convenient to be able to ask the hackage database those things,
+and this is exactly what cabal-db usually works with.</p>
+<p><a rel="external" href="http://hackage.haskell.org/package/cabal-db">cabal-db</a>, for the ones that
+missed the previous
+<a rel="external" href="http://tab.snarc.org/posts/haskell/2013-03-13-cabal-db.html">annoucement</a>, is a
+simple program that using the index.tar.gz file, is able to recursively display
+or search into packages and dependencies.</p>
+<p>The license subcommand is mainly to get a summary of the licenses of a packages
+and its dependencies, but it can also display the tree of licenses. Once
+a package has been listed, it would not appears again in the tree even if
+another package depend on it.</p>
+<p>A simple example is better than many words:</p>
+<pre class="giallo" style="color: #F8F8F2; background-color: #272822;" ><code data-lang="plain"><span class="giallo-l"><span>$ cabal-db license -s -t BNFC</span></span>
+<span class="giallo-l"><span>BNFC: GPL</span></span>
+<span class="giallo-l"><span>  process: BSD3</span></span>
+<span class="giallo-l"><span>    unix: BSD3</span></span>
+<span class="giallo-l"><span>      time: BSD3</span></span>
+<span class="giallo-l"><span>        old-locale: BSD3</span></span>
+<span class="giallo-l"><span>          base: BSD3</span></span>
+<span class="giallo-l"><span>        deepseq: BSD3</span></span>
+<span class="giallo-l"><span>          array: BSD3</span></span>
+<span class="giallo-l"><span>      bytestring: BSD3</span></span>
+<span class="giallo-l"><span>    filepath: BSD3</span></span>
+<span class="giallo-l"><span>    directory: BSD3</span></span>
+<span class="giallo-l"><span>  pretty: BSD3</span></span>
+<span class="giallo-l"><span>  mtl: BSD3</span></span>
+<span class="giallo-l"><span>    transformers: BSD3</span></span>
+<span class="giallo-l"><span>  containers: BSD3</span></span>
+<span class="giallo-l"><span>== license summary ==</span></span>
+<span class="giallo-l"><span>BSD3: 14</span></span>
+<span class="giallo-l"><span>GPL: 1</span></span></code></pre>
+<p>cabal-db is only using the license listed in the license field in cabal files,
+so if the field is incorrectly set, cabal-db would have no idea.</p>
+
+
+        
+    
+
+        
+        
+    </article></div>
+    <div class="pagination">
+        <div class="pagination__buttons">
+            </div>
+    </div>
+<footer class="footer">
+                    <div class="footer__inner"><div class="copyright copyright--user">copyright (C) 2015-2026 Vincent Hanquez</div>
+    <script type="text/javascript" src="https://vincenthz.github.io/assets/js/main.js"></script>
+</div>
+                    
+
+                </footer></div>
+    </body>
+</html>

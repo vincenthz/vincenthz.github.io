@@ -1,0 +1,56 @@
+==================================================================
+https://keybase.io/vhz
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of https://vincenthz.github.io
+  * I am vhz (https://keybase.io/vhz) on keybase.
+  * I have a public key ASD8I4pHNuWa8DybHy-jiRnWMXcXb_xMkIz2KuYylfwXQAo
+
+To do so, I am signing this object:
+
+{
+  "body": {
+    "key": {
+      "eldest_kid": "0120fc238a4736e59af03c9b1f2fa38919d63177176ffc4c908cf62ae63295fc17400a",
+      "host": "keybase.io",
+      "kid": "0120fc238a4736e59af03c9b1f2fa38919d63177176ffc4c908cf62ae63295fc17400a",
+      "uid": "5f12aaaca9cfea97acc49d954edeca19",
+      "username": "vhz"
+    },
+    "merkle_root": {
+      "ctime": 1544783741,
+      "hash": "6db53f5dd1398f340a88dbb126de929cadfffef3090e694a3c3f27b44b5ffce67787230b7ccb3ebf6a5669d656182dc7e12a67d17fe084eb5eb4615273a50073",
+      "hash_meta": "8684fe645626384f50d8c0cdf60ec4c64259744f4c29f84e616abb043b8588a7",
+      "seqno": 4136921
+    },
+    "service": {
+      "entropy": "YZUwrt2ma3jpAFlqRSparVnQ",
+      "hostname": "vincenthz.github.io",
+      "protocol": "https:"
+    },
+    "type": "web_service_binding",
+    "version": 2
+  },
+  "client": {
+    "name": "keybase.io go client",
+    "version": "2.11.0"
+  },
+  "ctime": 1544783751,
+  "expire_in": 504576000,
+  "prev": "eaa9b86ebfd92980b9ae8a119ecd51f9cc1e4ccd50415c9962b29771d2d92858",
+  "seqno": 29,
+  "tag": "signature"
+}
+
+which yields the signature:
+
+hKRib2R5hqhkZXRhY2hlZMOpaGFzaF90eXBlCqNrZXnEIwEg/COKRzblmvA8mx8vo4kZ1jF3F2/8TJCM9irmMpX8F0AKp3BheWxvYWTESpcCHcQg6qm4br/ZKYC5rooRns1R+cweTM1QQVyZYrKXcdLZKFjEILCrET9eume7L3awk7uWCemdocRX7J6ot7eZtHRwKwClAgHCo3NpZ8RAJgONdw61KaTtrdq3LOUK9WcokTP/aU4zUPYmulNBAih4gUPP/OvNASS4hB8FFY0sh4H6UakK39tw4Ko9ftRlCqhzaWdfdHlwZSCkaGFzaIKkdHlwZQildmFsdWXEIB4zskAkMLKYDib0mz+b0hYvpQPkdL1T1197L3tfSKr8o3RhZ80CAqd2ZXJzaW9uAQ==
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/vhz
+
+==================================================================
